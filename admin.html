@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN PANEL - 8-BIT</title>
+    <title>ADMIN - ÜBERMENSCH.EXE</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -15,97 +15,94 @@
 
     <main class="content-container">
         <div class="page-header">
-            <h1>⚙️ CONTROL PANEL</h1>
+            <h1>🎀 ADMIN CONTROL</h1>
             <p class="subtitle">ADD & MANAGE CONTENT</p>
         </div>
 
+        <!-- Tab navigation -->
         <div class="admin-tabs">
-            <button class="tab-btn active" data-tab="gym">ADD GYM ENTRY</button>
-            <button class="tab-btn" data-tab="note">ADD NOTE</button>
-            <button class="tab-btn" data-tab="manage">MANAGE DATA</button>
+            <button class="tab-btn active" data-tab="lifts">ADD LIFT</button>
+            <button class="tab-btn" data-tab="thoughts">ADD THOUGHT</button>
+            <button class="tab-btn" data-tab="manage">MANAGE</button>
         </div>
 
-        <!-- GYM ENTRY FORM -->
-        <div class="tab-content active" id="gym-tab">
-            <form id="gym-form" class="admin-form">
+        <!-- LIFTS FORM -->
+        <div class="tab-content active" id="lifts-tab">
+            <form id="lifts-form" class="admin-form">
                 <div class="form-group">
-                    <label>WORKOUT TITLE *</label>
-                    <input type="text" id="gym-title" required placeholder="e.g., Bench Press PR - 225lbs">
+                    <label>TITLE *</label>
+                    <input type="text" id="lift-title" required placeholder="e.g., Deadlift PR - 500lbs">
                 </div>
 
                 <div class="form-group">
                     <label>DATE *</label>
-                    <input type="date" id="gym-date" required>
+                    <input type="date" id="lift-date" required>
                 </div>
 
                 <div class="form-group">
                     <label>YOUTUBE VIDEO URL (optional)</label>
-                    <input type="url" id="gym-video" placeholder="https://youtube.com/watch?v=...">
-                    <small>Paste full YouTube URL (works with unlisted videos)</small>
+                    <input type="url" id="lift-video" placeholder="https://youtube.com/watch?v=...">
+                    <small>Leave empty if uploading image instead</small>
                 </div>
 
                 <div class="form-group">
                     <label>IMAGE (optional)</label>
-                    <input type="file" id="gym-image" accept="image/*">
-                    <small>Upload a photo from your device</small>
+                    <input type="file" id="lift-image" accept="image/*">
+                    <small>Upload image if no video</small>
                 </div>
 
                 <div class="form-group">
-                    <label>WORKOUT NOTES *</label>
-                    <textarea id="gym-notes" rows="5" required placeholder="How did the workout go? How did you feel? Any PRs?"></textarea>
+                    <label>NOTES *</label>
+                    <textarea id="lift-notes" rows="8" required placeholder="Describe your lift, how you felt, PRs, etc..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary">SAVE WORKOUT</button>
+                <button type="submit" class="btn-primary">SAVE LIFT</button>
             </form>
         </div>
 
-        <!-- NOTE FORM -->
-        <div class="tab-content" id="note-tab">
-            <form id="note-form" class="admin-form">
-                <div class="form-group">
-                    <label>NOTE TYPE *</label>
-                    <select id="note-type" required>
-                        <option value="thought">💭 Shower Thought</option>
-                        <option value="learning">📚 Learning Note</option>
-                    </select>
-                </div>
-
+        <!-- THOUGHTS FORM -->
+        <div class="tab-content" id="thoughts-tab">
+            <form id="thoughts-form" class="admin-form">
                 <div class="form-group">
                     <label>TITLE *</label>
-                    <input type="text" id="note-title" required placeholder="e.g., Why we procrastinate">
+                    <input type="text" id="thought-title" required placeholder="e.g., On Discipline">
                 </div>
 
                 <div class="form-group">
                     <label>DATE *</label>
-                    <input type="date" id="note-date" required>
+                    <input type="date" id="thought-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>IMAGE (optional)</label>
+                    <input type="file" id="thought-image" accept="image/*">
+                    <small>One image per thought</small>
                 </div>
 
                 <div class="form-group">
                     <label>CONTENT *</label>
-                    <textarea id="note-content" rows="8" required placeholder="Write your thought or learning note here..."></textarea>
+                    <textarea id="thought-content" rows="15" required placeholder="Write your thoughts here..."></textarea>
+                    <small>Long-form text content</small>
                 </div>
 
-                <div class="form-group">
-                    <label>TAGS (optional)</label>
-                    <input type="text" id="note-tags" placeholder="psychology, productivity, habits">
-                    <small>Separate tags with commas</small>
-                </div>
-
-                <button type="submit" class="btn-primary">SAVE NOTE</button>
+                <button type="submit" class="btn-primary">SAVE THOUGHT</button>
             </form>
         </div>
 
         <!-- DATA MANAGEMENT -->
         <div class="tab-content" id="manage-tab">
             <div class="admin-form">
-                <h2>MANAGE ENTRIES</h2>
-                <p class="warning-text">⚠️ View and delete entries below</p>
+                <h2>MANAGE LIFTS</h2>
+                <div id="lifts-list" class="manage-list">Loading...</div>
                 
-                <h3 style="margin-top: 20px;">GYM ENTRIES</h3>
-                <div id="gym-list" class="manage-list">Loading...</div>
-                
-                <h3 style="margin-top: 30px;">NOTES</h3>
-                <div id="notes-manage-list" class="manage-list">Loading...</div>
+                <h2 style="margin-top: 40px;">MANAGE THOUGHTS</h2>
+                <div id="thoughts-list" class="manage-list">Loading...</div>
+
+                <h2 style="margin-top: 40px;">DANGER ZONE</h2>
+                <div class="button-group">
+                    <button onclick="clearLifts()" class="btn-danger">DELETE ALL LIFTS</button>
+                    <button onclick="clearThoughts()" class="btn-danger">DELETE ALL THOUGHTS</button>
+                </div>
             </div>
         </div>
 
@@ -114,28 +111,26 @@
 
     <div class="scanline"></div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
         const firebaseConfig = {
-        apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
-        authDomain: "retrosite-7977d.firebaseapp.com",
-        projectId: "retrosite-7977d",
-        storageBucket: "retrosite-7977d.firebasestorage.app",
-        messagingSenderId: "384802123307",
-        appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
-        measurementId: "G-T6FS3XQFVW"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-// Test git commit lol
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         // Set today's date as default
-        document.getElementById('gym-date').valueAsDate = new Date();
-        document.getElementById('note-date').valueAsDate = new Date();
+        document.getElementById('lift-date').valueAsDate = new Date();
+        document.getElementById('thought-date').valueAsDate = new Date();
 
         // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -146,18 +141,17 @@
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
                 
-                // Load manage lists when manage tab is opened
                 if (btn.dataset.tab === 'manage') {
                     loadManageLists();
                 }
             });
         });
 
-        // GYM FORM SUBMISSION
-        document.getElementById('gym-form').addEventListener('submit', async (e) => {
+        // LIFTS FORM SUBMISSION
+        document.getElementById('lifts-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const imageFile = document.getElementById('gym-image').files[0];
+            const imageFile = document.getElementById('lift-image').files[0];
             let imageUrl = '';
             
             if (imageFile) {
@@ -165,126 +159,158 @@
             }
             
             const entry = {
-                title: document.getElementById('gym-title').value,
-                date: document.getElementById('gym-date').value,
-                videoUrl: document.getElementById('gym-video').value,
+                title: document.getElementById('lift-title').value,
+                date: document.getElementById('lift-date').value,
+                videoUrl: document.getElementById('lift-video').value,
                 imageUrl: imageUrl,
-                notes: document.getElementById('gym-notes').value,
+                notes: document.getElementById('lift-notes').value,
                 timestamp: serverTimestamp()
             };
             
             try {
-                await addDoc(collection(db, 'gymEntries'), entry);
-                showMessage('✓ Workout saved successfully!', 'success');
-                document.getElementById('gym-form').reset();
-                document.getElementById('gym-date').valueAsDate = new Date();
+                await addDoc(collection(db, 'lifts'), entry);
+                showMessage('✓ Lift saved successfully!', 'success');
+                document.getElementById('lifts-form').reset();
+                document.getElementById('lift-date').valueAsDate = new Date();
             } catch (error) {
-                console.error('Error saving workout:', error);
-                showMessage('✗ Error saving workout', 'error');
+                console.error('Error saving lift:', error);
+                showMessage('✗ Error saving lift', 'error');
             }
         });
 
-        // NOTE FORM SUBMISSION
-        document.getElementById('note-form').addEventListener('submit', async (e) => {
+        // THOUGHTS FORM SUBMISSION
+        document.getElementById('thoughts-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const note = {
-                type: document.getElementById('note-type').value,
-                title: document.getElementById('note-title').value,
-                date: document.getElementById('note-date').value,
-                content: document.getElementById('note-content').value,
-                tags: document.getElementById('note-tags').value,
+            const imageFile = document.getElementById('thought-image').files[0];
+            let imageUrl = '';
+            
+            if (imageFile) {
+                imageUrl = await fileToBase64(imageFile);
+            }
+            
+            const thought = {
+                title: document.getElementById('thought-title').value,
+                date: document.getElementById('thought-date').value,
+                imageUrl: imageUrl,
+                content: document.getElementById('thought-content').value,
                 timestamp: serverTimestamp()
             };
             
             try {
-                await addDoc(collection(db, 'notes'), note);
-                showMessage('✓ Note saved successfully!', 'success');
-                document.getElementById('note-form').reset();
-                document.getElementById('note-date').valueAsDate = new Date();
+                await addDoc(collection(db, 'thoughts'), thought);
+                showMessage('✓ Thought saved successfully!', 'success');
+                document.getElementById('thoughts-form').reset();
+                document.getElementById('thought-date').valueAsDate = new Date();
             } catch (error) {
-                console.error('Error saving note:', error);
-                showMessage('✗ Error saving note', 'error');
+                console.error('Error saving thought:', error);
+                showMessage('✗ Error saving thought', 'error');
             }
         });
 
         // LOAD MANAGE LISTS
         async function loadManageLists() {
-            // Load gym entries
+            // Load lifts
             try {
-                const gymQuery = query(collection(db, 'gymEntries'), orderBy('timestamp', 'desc'));
-                const gymSnapshot = await getDocs(gymQuery);
+                const liftsQuery = query(collection(db, 'lifts'), orderBy('timestamp', 'desc'));
+                const liftsSnapshot = await getDocs(liftsQuery);
                 
-                const gymList = document.getElementById('gym-list');
-                if (gymSnapshot.empty) {
-                    gymList.innerHTML = '<p class="small">No gym entries yet</p>';
+                const liftsList = document.getElementById('lifts-list');
+                if (liftsSnapshot.empty) {
+                    liftsList.innerHTML = '<p class="small">No lifts yet</p>';
                 } else {
-                    gymList.innerHTML = '';
-                    gymSnapshot.forEach((docSnapshot) => {
+                    liftsList.innerHTML = '';
+                    liftsSnapshot.forEach((docSnapshot) => {
                         const entry = docSnapshot.data();
                         const div = document.createElement('div');
                         div.className = 'manage-item';
                         div.innerHTML = `
                             <span>${entry.title} - ${entry.date}</span>
-                            <button onclick="deleteGymEntry('${docSnapshot.id}')" class="btn-delete">DELETE</button>
+                            <button onclick="deleteLift('${docSnapshot.id}')" class="btn-delete">DELETE</button>
                         `;
-                        gymList.appendChild(div);
+                        liftsList.appendChild(div);
                     });
                 }
             } catch (error) {
-                console.error('Error loading gym entries:', error);
+                console.error('Error loading lifts:', error);
             }
 
-            // Load notes
+            // Load thoughts
             try {
-                const notesQuery = query(collection(db, 'notes'), orderBy('timestamp', 'desc'));
-                const notesSnapshot = await getDocs(notesQuery);
+                const thoughtsQuery = query(collection(db, 'thoughts'), orderBy('timestamp', 'desc'));
+                const thoughtsSnapshot = await getDocs(thoughtsQuery);
                 
-                const notesList = document.getElementById('notes-manage-list');
-                if (notesSnapshot.empty) {
-                    notesList.innerHTML = '<p class="small">No notes yet</p>';
+                const thoughtsList = document.getElementById('thoughts-list');
+                if (thoughtsSnapshot.empty) {
+                    thoughtsList.innerHTML = '<p class="small">No thoughts yet</p>';
                 } else {
-                    notesList.innerHTML = '';
-                    notesSnapshot.forEach((docSnapshot) => {
-                        const note = docSnapshot.data();
+                    thoughtsList.innerHTML = '';
+                    thoughtsSnapshot.forEach((docSnapshot) => {
+                        const thought = docSnapshot.data();
                         const div = document.createElement('div');
                         div.className = 'manage-item';
                         div.innerHTML = `
-                            <span>${note.title} - ${note.date}</span>
-                            <button onclick="deleteNote('${docSnapshot.id}')" class="btn-delete">DELETE</button>
+                            <span>${thought.title} - ${thought.date}</span>
+                            <button onclick="deleteThought('${docSnapshot.id}')" class="btn-delete">DELETE</button>
                         `;
-                        notesList.appendChild(div);
+                        thoughtsList.appendChild(div);
                     });
                 }
             } catch (error) {
-                console.error('Error loading notes:', error);
+                console.error('Error loading thoughts:', error);
             }
         }
 
         // DELETE FUNCTIONS
-        window.deleteGymEntry = async function(id) {
-            if (!confirm('Delete this gym entry?')) return;
-            
+        window.deleteLift = async function(id) {
+            if (!confirm('Delete this lift?')) return;
             try {
-                await deleteDoc(doc(db, 'gymEntries', id));
-                showMessage('✓ Entry deleted', 'success');
+                await deleteDoc(doc(db, 'lifts', id));
+                showMessage('✓ Lift deleted', 'success');
                 loadManageLists();
             } catch (error) {
                 console.error('Error deleting:', error);
-                showMessage('✗ Error deleting entry', 'error');
+                showMessage('✗ Error deleting lift', 'error');
             }
         };
 
-        window.deleteNote = async function(id) {
-            if (!confirm('Delete this note?')) return;
-            
+        window.deleteThought = async function(id) {
+            if (!confirm('Delete this thought?')) return;
             try {
-                await deleteDoc(doc(db, 'notes', id));
-                showMessage('✓ Note deleted', 'success');
+                await deleteDoc(doc(db, 'thoughts', id));
+                showMessage('✓ Thought deleted', 'success');
                 loadManageLists();
             } catch (error) {
                 console.error('Error deleting:', error);
-                showMessage('✗ Error deleting note', 'error');
+                showMessage('✗ Error deleting thought', 'error');
+            }
+        };
+
+        window.clearLifts = async function() {
+            if (!confirm('Delete ALL lifts? This cannot be undone!')) return;
+            try {
+                const snapshot = await getDocs(collection(db, 'lifts'));
+                const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+                showMessage('✓ All lifts deleted', 'success');
+                loadManageLists();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('✗ Error deleting lifts', 'error');
+            }
+        };
+
+        window.clearThoughts = async function() {
+            if (!confirm('Delete ALL thoughts? This cannot be undone!')) return;
+            try {
+                const snapshot = await getDocs(collection(db, 'thoughts'));
+                const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+                showMessage('✓ All thoughts deleted', 'success');
+                loadManageLists();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('✗ Error deleting thoughts', 'error');
             }
         };
 
@@ -330,10 +356,17 @@
             padding: 8px 16px;
             font-size: 0.5rem;
             cursor: pointer;
+            transition: all 0.2s;
         }
         .btn-delete:hover {
             background: transparent;
             color: var(--danger);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 0 var(--danger);
+        }
+        .btn-delete:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 0 var(--danger);
         }
     </style>
 </body>

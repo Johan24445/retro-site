@@ -22,11 +22,8 @@ function setupNavigation() {
         item.addEventListener('click', () => {
             const page = item.dataset.page;
             if (page) {
-                // Add transition effect before navigation
-                document.body.style.opacity = '0';
-                setTimeout(() => {
-                    window.location.href = page;
-                }, 300);
+                // Simple navigation without fade
+                window.location.href = page;
             }
         });
         
@@ -50,6 +47,7 @@ function setupKeyboardNavigation() {
     // Highlight first item
     menuItems[0].classList.add('selected');
     
+    // Handle keyboard events
     document.addEventListener('keydown', (e) => {
         // Remove current selection
         menuItems[currentIndex].classList.remove('selected');
@@ -58,19 +56,35 @@ function setupKeyboardNavigation() {
             // Move down
             currentIndex = (currentIndex + 1) % menuItems.length;
             e.preventDefault();
+            playSelectSound();
         } else if (e.key === 'ArrowUp') {
             // Move up
             currentIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
             e.preventDefault();
+            playSelectSound();
         } else if (e.key === 'Enter') {
-            // Select current item
-            menuItems[currentIndex].click();
+            // Select current item with animation
+            menuItems[currentIndex].classList.add('activated');
+            playConfirmSound();
+            setTimeout(() => {
+                menuItems[currentIndex].click();
+            }, 150);
             e.preventDefault();
         }
         
         // Highlight new selection
         menuItems[currentIndex].classList.add('selected');
         menuItems[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    // Any key press to start (optional enhancement)
+    let hasInteracted = false;
+    document.addEventListener('keypress', (e) => {
+        if (!hasInteracted && menuItems.length > 0) {
+            hasInteracted = true;
+            // Add visual feedback that keyboard is active
+            document.querySelector('.footer-info').style.color = 'var(--primary)';
+        }
     });
 }
 
@@ -81,9 +95,9 @@ function setupKeyboardNavigation() {
 
 // Create audio objects for different sounds
 const sounds = {
-    hover: null,  // new Audio('sounds/hover.mp3')
-    select: null, // new Audio('sounds/select.mp3')
-    error: null   // new Audio('sounds/error.mp3')
+    hover: null,   // new Audio('sounds/hover.mp3')
+    select: null,  // new Audio('sounds/select.mp3')
+    confirm: null  // new Audio('sounds/confirm.mp3')
 };
 
 function playSound(soundName) {
@@ -94,6 +108,51 @@ function playSound(soundName) {
             // Browsers may block autoplay - this is normal
             console.log('Sound play blocked:', err);
         });
+    }
+}
+
+// Add simple beep sounds without audio files (uses Web Audio API)
+function playSelectSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 400; // Hz
+        oscillator.type = 'square'; // Retro square wave
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.05);
+    } catch (e) {
+        // Audio API not supported, silent fail
+    }
+}
+
+function playConfirmSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800; // Higher pitch for confirm
+        oscillator.type = 'square';
+        
+        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        // Audio API not supported, silent fail
     }
 }
 
@@ -137,11 +196,11 @@ function showNotification(title, message) {
 
 /* ============================================
    PAGE TRANSITION EFFECTS
-   Add fade effects when navigating
+   Simple fade in on page load
    ============================================ */
-window.addEventListener('load', () => {
+// Page loads with normal opacity
+document.addEventListener('DOMContentLoaded', () => {
     document.body.style.opacity = '1';
-    document.body.style.transition = 'opacity 0.3s';
 });
 
 /* ============================================

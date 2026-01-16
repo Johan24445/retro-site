@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THOUGHTS - ÜBERMENSCH.EXE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="nav-bar">
+        <a href="index.html" class="nav-link">◄ HOME</a>
+        <span class="nav-title">THOUGHTS</span>
+        <a href="admin.html" class="nav-link">ADMIN ►</a>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content-container">
+        <div class="page-header">
+            <h1>✨ THOUGHTS</h1>
+            <p class="subtitle">REFLECTIONS & MUSINGS</p>
+        </div>
+
+        <!-- Thoughts will be loaded here -->
+        <div id="thoughts-container" class="newspaper-container">
+            <div class="empty-state">
+                <p>NO THOUGHTS FOUND</p>
+                <p class="small">GO TO ADMIN TO ADD YOUR FIRST THOUGHT</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scanline effect -->
+    <div class="scanline"></div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Load thoughts when page loads
+        loadThoughts();
+
+        async function loadThoughts() {
+            const container = document.getElementById('thoughts-container');
+            
+            try {
+                const q = query(collection(db, 'thoughts'), orderBy('timestamp', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>NO THOUGHTS FOUND</p>
+                            <p class="small">GO TO ADMIN TO ADD YOUR FIRST THOUGHT</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Build HTML for all thoughts in newspaper layout
+                let html = '';
+                querySnapshot.forEach((doc) => {
+                    const thought = doc.data();
+                    html += `
+                        <article class="newspaper-article">
+                            <div class="article-header">
+                                <h2 class="article-title">${thought.title}</h2>
+                                <span class="article-date">${thought.date}</span>
+                            </div>
+                            
+                            <div class="article-content">
+                                ${thought.imageUrl ? `
+                                    <div class="article-media">
+                                        <div class="image-wrapper">
+                                            <img src="${thought.imageUrl}" alt="${thought.title}" loading="lazy">
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="article-text ${!thought.imageUrl ? 'full-width' : ''}">
+                                    <p>${thought.content.replace(/\n/g, '<br>')}</p>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading thoughts:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>ERROR LOADING THOUGHTS</p>
+                        <p class="small">Check console for details</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
