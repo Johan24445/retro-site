@@ -10,25 +10,26 @@
 <body>
     <nav class="nav-bar">
         <a href="index.html" class="nav-link">◄ HOME</a>
-        <span class="nav-title">ADMIN PANEL</span>
+        <span class="nav-title">ADMIN SANCTUM</span>
     </nav>
 
     <main class="content-container">
         <div class="page-header">
-            <h1>🎀 ADMIN CONTROL</h1>
-            <p class="subtitle">ADD & MANAGE CONTENT</p>
+            <h1>🛡️ ADMIN SANCTUM</h1>
+            <p class="subtitle">SCRIBE'S CHAMBER</p>
         </div>
 
-        <!-- Tab navigation -->
         <div class="admin-tabs">
-            <button class="tab-btn active" data-tab="lifts">ADD LIFT</button>
-            <button class="tab-btn" data-tab="thoughts">ADD THOUGHT</button>
-            <button class="tab-btn" data-tab="manage">MANAGE</button>
+            <button class="tab-btn active" data-tab="lifts">ADD/EDIT LIFT</button>
+            <button class="tab-btn" data-tab="thoughts">ADD/EDIT THOUGHT</button>
+            <button class="tab-btn" data-tab="manage">MANAGE ALL</button>
         </div>
 
         <!-- LIFTS FORM -->
         <div class="tab-content active" id="lifts-tab">
             <form id="lifts-form" class="admin-form">
+                <input type="hidden" id="lift-edit-id">
+                
                 <div class="form-group">
                     <label>TITLE *</label>
                     <input type="text" id="lift-title" required placeholder="e.g., Deadlift PR - 500lbs">
@@ -40,15 +41,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label>YOUTUBE VIDEO URL (optional)</label>
-                    <input type="url" id="lift-video" placeholder="https://youtube.com/watch?v=...">
-                    <small>Leave empty if uploading image instead</small>
-                </div>
-
-                <div class="form-group">
-                    <label>IMAGE (optional)</label>
-                    <input type="file" id="lift-image" accept="image/*">
-                    <small>Upload image if no video</small>
+                    <label>MEDIA (Videos & Images)</label>
+                    <div id="lift-media-list"></div>
+                    <button type="button" onclick="addLiftMedia()" class="btn-secondary" style="margin-top:10px">+ ADD MEDIA</button>
                 </div>
 
                 <div class="form-group">
@@ -56,13 +51,16 @@
                     <textarea id="lift-notes" rows="8" required placeholder="Describe your lift, how you felt, PRs, etc..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary">SAVE LIFT</button>
+                <button type="submit" class="btn-primary" id="lift-submit-btn">SAVE LIFT</button>
+                <button type="button" onclick="cancelEdit('lift')" class="btn-secondary" style="display:none;margin-top:10px" id="lift-cancel-btn">CANCEL EDIT</button>
             </form>
         </div>
 
         <!-- THOUGHTS FORM -->
         <div class="tab-content" id="thoughts-tab">
             <form id="thoughts-form" class="admin-form">
+                <input type="hidden" id="thought-edit-id">
+                
                 <div class="form-group">
                     <label>TITLE *</label>
                     <input type="text" id="thought-title" required placeholder="e.g., On Discipline">
@@ -74,34 +72,34 @@
                 </div>
 
                 <div class="form-group">
-                    <label>IMAGE (optional)</label>
-                    <input type="file" id="thought-image" accept="image/*">
-                    <small>One image per thought</small>
+                    <label>MEDIA (Images)</label>
+                    <div id="thought-media-list"></div>
+                    <button type="button" onclick="addThoughtMedia()" class="btn-secondary" style="margin-top:10px">+ ADD IMAGE</button>
                 </div>
 
                 <div class="form-group">
                     <label>CONTENT *</label>
                     <textarea id="thought-content" rows="15" required placeholder="Write your thoughts here..."></textarea>
-                    <small>Long-form text content</small>
                 </div>
 
-                <button type="submit" class="btn-primary">SAVE THOUGHT</button>
+                <button type="submit" class="btn-primary" id="thought-submit-btn">SAVE THOUGHT</button>
+                <button type="button" onclick="cancelEdit('thought')" class="btn-secondary" style="display:none;margin-top:10px" id="thought-cancel-btn">CANCEL EDIT</button>
             </form>
         </div>
 
-        <!-- DATA MANAGEMENT -->
+        <!-- MANAGE TAB -->
         <div class="tab-content" id="manage-tab">
             <div class="admin-form">
                 <h2>MANAGE LIFTS</h2>
-                <div id="lifts-list" class="manage-list">Loading...</div>
+                <div id="lifts-manage-list" class="manage-list">Loading...</div>
                 
                 <h2 style="margin-top: 40px;">MANAGE THOUGHTS</h2>
-                <div id="thoughts-list" class="manage-list">Loading...</div>
+                <div id="thoughts-manage-list" class="manage-list">Loading...</div>
 
                 <h2 style="margin-top: 40px;">DANGER ZONE</h2>
                 <div class="button-group">
-                    <button onclick="clearLifts()" class="btn-danger">DELETE ALL LIFTS</button>
-                    <button onclick="clearThoughts()" class="btn-danger">DELETE ALL THOUGHTS</button>
+                    <button onclick="clearAllLifts()" class="btn-danger">DELETE ALL LIFTS</button>
+                    <button onclick="clearAllThoughts()" class="btn-danger">DELETE ALL THOUGHTS</button>
                 </div>
             </div>
         </div>
@@ -113,9 +111,8 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
             authDomain: "retrosite-7977d.firebaseapp.com",
@@ -124,12 +121,14 @@
             messagingSenderId: "384802123307",
             appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
             measurementId: "G-T6FS3XQFVW"
-            };  
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Set today's date as default
+        let liftMediaCount = 0;
+        let thoughtMediaCount = 0;
+
         document.getElementById('lift-date').valueAsDate = new Date();
         document.getElementById('thought-date').valueAsDate = new Date();
 
@@ -138,128 +137,278 @@
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
-                
-                if (btn.dataset.tab === 'manage') {
-                    loadManageLists();
-                }
+                if (btn.dataset.tab === 'manage') loadManageLists();
             });
         });
 
-        // LIFTS FORM SUBMISSION
+        // Add media input for lifts
+        window.addLiftMedia = function() {
+            const container = document.getElementById('lift-media-list');
+            const id = ++liftMediaCount;
+            const div = document.createElement('div');
+            div.className = 'media-item';
+            div.innerHTML = `
+                <select class="media-type" data-id="${id}">
+                    <option value="video">Video (YouTube URL)</option>
+                    <option value="image">Image (Upload)</option>
+                </select>
+                <input type="text" class="media-video" data-id="${id}" placeholder="https://youtube.com/watch?v=..." style="display:block">
+                <input type="file" class="media-image" data-id="${id}" accept="image/*" style="display:none">
+                <button type="button" onclick="removeLiftMedia(${id})">✕</button>
+            `;
+            container.appendChild(div);
+            
+            div.querySelector('.media-type').addEventListener('change', (e) => {
+                const video = div.querySelector('.media-video');
+                const image = div.querySelector('.media-image');
+                if (e.target.value === 'video') {
+                    video.style.display = 'block';
+                    image.style.display = 'none';
+                } else {
+                    video.style.display = 'none';
+                    image.style.display = 'block';
+                }
+            });
+        };
+
+        window.removeLiftMedia = function(id) {
+            document.querySelector(`[data-id="${id}"]`).closest('.media-item').remove();
+        };
+
+        // Add media for thoughts
+        window.addThoughtMedia = function() {
+            const container = document.getElementById('thought-media-list');
+            const id = ++thoughtMediaCount;
+            const div = document.createElement('div');
+            div.className = 'media-item';
+            div.innerHTML = `
+                <input type="file" class="media-image" data-id="${id}" accept="image/*">
+                <button type="button" onclick="removeThoughtMedia(${id})">✕</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.removeThoughtMedia = function(id) {
+            document.querySelector(`#thought-media-list [data-id="${id}"]`).closest('.media-item').remove();
+        };
+
+        // LIFT FORM SUBMISSION
         document.getElementById('lifts-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const imageFile = document.getElementById('lift-image').files[0];
-            let imageUrl = '';
-            
-            if (imageFile) {
-                imageUrl = await fileToBase64(imageFile);
+            const media = [];
+            const mediaItems = document.querySelectorAll('#lift-media-list .media-item');
+            for (const item of mediaItems) {
+                const type = item.querySelector('.media-type').value;
+                if (type === 'video') {
+                    const url = item.querySelector('.media-video').value;
+                    if (url) media.push({ type: 'video', url });
+                } else {
+                    const file = item.querySelector('.media-image').files[0];
+                    if (file) {
+                        const base64 = await fileToBase64(file);
+                        media.push({ type: 'image', url: base64 });
+                    }
+                }
             }
             
-            const entry = {
+            const data = {
                 title: document.getElementById('lift-title').value,
                 date: document.getElementById('lift-date').value,
-                videoUrl: document.getElementById('lift-video').value,
-                imageUrl: imageUrl,
+                media: media,
                 notes: document.getElementById('lift-notes').value,
                 timestamp: serverTimestamp()
             };
             
+            const editId = document.getElementById('lift-edit-id').value;
+            
             try {
-                await addDoc(collection(db, 'lifts'), entry);
-                showMessage('✓ Lift saved successfully!', 'success');
-                document.getElementById('lifts-form').reset();
-                document.getElementById('lift-date').valueAsDate = new Date();
+                if (editId) {
+                    await updateDoc(doc(db, 'lifts', editId), data);
+                    showMessage('✓ Lift updated!', 'success');
+                } else {
+                    await addDoc(collection(db, 'lifts'), data);
+                    showMessage('✓ Lift saved!', 'success');
+                }
+                resetLiftForm();
             } catch (error) {
-                console.error('Error saving lift:', error);
-                showMessage('✗ Error saving lift', 'error');
+                console.error(error);
+                showMessage('✗ Error saving', 'error');
             }
         });
 
-        // THOUGHTS FORM SUBMISSION
+        // THOUGHT FORM SUBMISSION
         document.getElementById('thoughts-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const imageFile = document.getElementById('thought-image').files[0];
-            let imageUrl = '';
-            
-            if (imageFile) {
-                imageUrl = await fileToBase64(imageFile);
+            const media = [];
+            const mediaItems = document.querySelectorAll('#thought-media-list .media-item');
+            for (const item of mediaItems) {
+                const file = item.querySelector('.media-image').files[0];
+                if (file) {
+                    const base64 = await fileToBase64(file);
+                    media.push({ type: 'image', url: base64 });
+                }
             }
             
-            const thought = {
+            const data = {
                 title: document.getElementById('thought-title').value,
                 date: document.getElementById('thought-date').value,
-                imageUrl: imageUrl,
+                media: media,
                 content: document.getElementById('thought-content').value,
                 timestamp: serverTimestamp()
             };
             
+            const editId = document.getElementById('thought-edit-id').value;
+            
             try {
-                await addDoc(collection(db, 'thoughts'), thought);
-                showMessage('✓ Thought saved successfully!', 'success');
-                document.getElementById('thoughts-form').reset();
-                document.getElementById('thought-date').valueAsDate = new Date();
+                if (editId) {
+                    await updateDoc(doc(db, 'thoughts', editId), data);
+                    showMessage('✓ Thought updated!', 'success');
+                } else {
+                    await addDoc(collection(db, 'thoughts'), data);
+                    showMessage('✓ Thought saved!', 'success');
+                }
+                resetThoughtForm();
             } catch (error) {
-                console.error('Error saving thought:', error);
-                showMessage('✗ Error saving thought', 'error');
+                console.error(error);
+                showMessage('✗ Error saving', 'error');
             }
         });
 
         // LOAD MANAGE LISTS
         async function loadManageLists() {
-            // Load lifts
-            try {
-                const liftsQuery = query(collection(db, 'lifts'), orderBy('timestamp', 'desc'));
-                const liftsSnapshot = await getDocs(liftsQuery);
-                
-                const liftsList = document.getElementById('lifts-list');
-                if (liftsSnapshot.empty) {
-                    liftsList.innerHTML = '<p class="small">No lifts yet</p>';
-                } else {
-                    liftsList.innerHTML = '';
-                    liftsSnapshot.forEach((docSnapshot) => {
-                        const entry = docSnapshot.data();
-                        const div = document.createElement('div');
-                        div.className = 'manage-item';
-                        div.innerHTML = `
-                            <span>${entry.title} - ${entry.date}</span>
-                            <button onclick="deleteLift('${docSnapshot.id}')" class="btn-delete">DELETE</button>
-                        `;
-                        liftsList.appendChild(div);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading lifts:', error);
+            // Lifts
+            const liftsSnap = await getDocs(query(collection(db, 'lifts'), orderBy('timestamp', 'desc')));
+            const liftsContainer = document.getElementById('lifts-manage-list');
+            if (liftsSnap.empty) {
+                liftsContainer.innerHTML = '<p class="small">No lifts yet</p>';
+            } else {
+                liftsContainer.innerHTML = '';
+                liftsSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'manage-item';
+                    div.innerHTML = `
+                        <span>${data.title} - ${data.date}</span>
+                        <div>
+                            <button onclick="editLift('${docSnap.id}')" class="btn-edit">EDIT</button>
+                            <button onclick="deleteLift('${docSnap.id}')" class="btn-delete">DELETE</button>
+                        </div>
+                    `;
+                    liftsContainer.appendChild(div);
+                });
             }
+            
+            // Thoughts
+            const thoughtsSnap = await getDocs(query(collection(db, 'thoughts'), orderBy('timestamp', 'desc')));
+            const thoughtsContainer = document.getElementById('thoughts-manage-list');
+            if (thoughtsSnap.empty) {
+                thoughtsContainer.innerHTML = '<p class="small">No thoughts yet</p>';
+            } else {
+                thoughtsContainer.innerHTML = '';
+                thoughtsSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const div = document.createElement('div');
+                    div.className = 'manage-item';
+                    div.innerHTML = `
+                        <span>${data.title} - ${data.date}</span>
+                        <div>
+                            <button onclick="editThought('${docSnap.id}')" class="btn-edit">EDIT</button>
+                            <button onclick="deleteThought('${docSnap.id}')" class="btn-delete">DELETE</button>
+                        </div>
+                    `;
+                    thoughtsContainer.appendChild(div);
+                });
+            }
+        }
 
-            // Load thoughts
-            try {
-                const thoughtsQuery = query(collection(db, 'thoughts'), orderBy('timestamp', 'desc'));
-                const thoughtsSnapshot = await getDocs(thoughtsQuery);
-                
-                const thoughtsList = document.getElementById('thoughts-list');
-                if (thoughtsSnapshot.empty) {
-                    thoughtsList.innerHTML = '<p class="small">No thoughts yet</p>';
-                } else {
-                    thoughtsList.innerHTML = '';
-                    thoughtsSnapshot.forEach((docSnapshot) => {
-                        const thought = docSnapshot.data();
-                        const div = document.createElement('div');
-                        div.className = 'manage-item';
-                        div.innerHTML = `
-                            <span>${thought.title} - ${thought.date}</span>
-                            <button onclick="deleteThought('${docSnapshot.id}')" class="btn-delete">DELETE</button>
-                        `;
-                        thoughtsList.appendChild(div);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading thoughts:', error);
+        // EDIT FUNCTIONS
+        window.editLift = async function(id) {
+            const docSnap = await getDocs(query(collection(db, 'lifts')));
+            let data;
+            docSnap.forEach(doc => {
+                if (doc.id === id) data = { id: doc.id, ...doc.data() };
+            });
+            
+            document.getElementById('lift-edit-id').value = data.id;
+            document.getElementById('lift-title').value = data.title;
+            document.getElementById('lift-date').value = data.date;
+            document.getElementById('lift-notes').value = data.notes;
+            
+            // Populate media
+            document.getElementById('lift-media-list').innerHTML = '';
+            liftMediaCount = 0;
+            if (data.media) {
+                data.media.forEach(m => {
+                    addLiftMedia();
+                    const lastItem = document.getElementById('lift-media-list').lastElementChild;
+                    if (m.type === 'video') {
+                        lastItem.querySelector('.media-type').value = 'video';
+                        lastItem.querySelector('.media-video').value = m.url;
+                    } else {
+                        lastItem.querySelector('.media-type').value = 'image';
+                        lastItem.querySelector('.media-type').dispatchEvent(new Event('change'));
+                    }
+                });
             }
+            
+            document.getElementById('lift-submit-btn').textContent = 'UPDATE LIFT';
+            document.getElementById('lift-cancel-btn').style.display = 'block';
+            document.querySelector('[data-tab="lifts"]').click();
+            showMessage('Editing lift...', 'success');
+        };
+
+        window.editThought = async function(id) {
+            const docSnap = await getDocs(query(collection(db, 'thoughts')));
+            let data;
+            docSnap.forEach(doc => {
+                if (doc.id === id) data = { id: doc.id, ...doc.data() };
+            });
+            
+            document.getElementById('thought-edit-id').value = data.id;
+            document.getElementById('thought-title').value = data.title;
+            document.getElementById('thought-date').value = data.date;
+            document.getElementById('thought-content').value = data.content;
+            
+            // Populate media
+            document.getElementById('thought-media-list').innerHTML = '';
+            thoughtMediaCount = 0;
+            if (data.media) {
+                data.media.forEach(() => addThoughtMedia());
+            }
+            
+            document.getElementById('thought-submit-btn').textContent = 'UPDATE THOUGHT';
+            document.getElementById('thought-cancel-btn').style.display = 'block';
+            document.querySelector('[data-tab="thoughts"]').click();
+            showMessage('Editing thought...', 'success');
+        };
+
+        window.cancelEdit = function(type) {
+            if (type === 'lift') resetLiftForm();
+            else resetThoughtForm();
+        };
+
+        function resetLiftForm() {
+            document.getElementById('lifts-form').reset();
+            document.getElementById('lift-edit-id').value = '';
+            document.getElementById('lift-media-list').innerHTML = '';
+            document.getElementById('lift-submit-btn').textContent = 'SAVE LIFT';
+            document.getElementById('lift-cancel-btn').style.display = 'none';
+            document.getElementById('lift-date').valueAsDate = new Date();
+            liftMediaCount = 0;
+        }
+
+        function resetThoughtForm() {
+            document.getElementById('thoughts-form').reset();
+            document.getElementById('thought-edit-id').value = '';
+            document.getElementById('thought-media-list').innerHTML = '';
+            document.getElementById('thought-submit-btn').textContent = 'SAVE THOUGHT';
+            document.getElementById('thought-cancel-btn').style.display = 'none';
+            document.getElementById('thought-date').valueAsDate = new Date();
+            thoughtMediaCount = 0;
         }
 
         // DELETE FUNCTIONS
@@ -267,11 +416,11 @@
             if (!confirm('Delete this lift?')) return;
             try {
                 await deleteDoc(doc(db, 'lifts', id));
-                showMessage('✓ Lift deleted', 'success');
+                showMessage('✓ Deleted', 'success');
                 loadManageLists();
             } catch (error) {
-                console.error('Error deleting:', error);
-                showMessage('✗ Error deleting lift', 'error');
+                console.error(error);
+                showMessage('✗ Error', 'error');
             }
         };
 
@@ -279,43 +428,30 @@
             if (!confirm('Delete this thought?')) return;
             try {
                 await deleteDoc(doc(db, 'thoughts', id));
-                showMessage('✓ Thought deleted', 'success');
+                showMessage('✓ Deleted', 'success');
                 loadManageLists();
             } catch (error) {
-                console.error('Error deleting:', error);
-                showMessage('✗ Error deleting thought', 'error');
+                console.error(error);
+                showMessage('✗ Error', 'error');
             }
         };
 
-        window.clearLifts = async function() {
-            if (!confirm('Delete ALL lifts? This cannot be undone!')) return;
-            try {
-                const snapshot = await getDocs(collection(db, 'lifts'));
-                const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
-                await Promise.all(deletePromises);
-                showMessage('✓ All lifts deleted', 'success');
-                loadManageLists();
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('✗ Error deleting lifts', 'error');
-            }
+        window.clearAllLifts = async function() {
+            if (!confirm('Delete ALL lifts?')) return;
+            const snap = await getDocs(collection(db, 'lifts'));
+            await Promise.all(snap.docs.map(doc => deleteDoc(doc.ref)));
+            showMessage('✓ All lifts deleted', 'success');
+            loadManageLists();
         };
 
-        window.clearThoughts = async function() {
-            if (!confirm('Delete ALL thoughts? This cannot be undone!')) return;
-            try {
-                const snapshot = await getDocs(collection(db, 'thoughts'));
-                const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
-                await Promise.all(deletePromises);
-                showMessage('✓ All thoughts deleted', 'success');
-                loadManageLists();
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('✗ Error deleting thoughts', 'error');
-            }
+        window.clearAllThoughts = async function() {
+            if (!confirm('Delete ALL thoughts?')) return;
+            const snap = await getDocs(collection(db, 'thoughts'));
+            await Promise.all(snap.docs.map(doc => deleteDoc(doc.ref)));
+            showMessage('✓ All thoughts deleted', 'success');
+            loadManageLists();
         };
 
-        // HELPER FUNCTIONS
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -336,8 +472,33 @@
     <script src="script.js"></script>
     
     <style>
-        .manage-list {
-            margin-top: 10px;
+        .media-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+        }
+        .media-item select,
+        .media-item input {
+            font-family: 'Press Start 2P', cursive;
+            background: var(--bg-dark);
+            color: var(--text);
+            border: 2px solid var(--border);
+            padding: 8px;
+            font-size: 0.6rem;
+        }
+        .media-item button {
+            font-family: 'Press Start 2P', cursive;
+            background: var(--danger);
+            color: white;
+            border: 2px solid var(--danger);
+            padding: 8px 16px;
+            font-size: 0.6rem;
+            cursor: pointer;
         }
         .manage-item {
             display: flex;
@@ -349,25 +510,26 @@
             border: 2px solid var(--border);
             font-size: 0.6rem;
         }
-        .btn-delete {
+        .manage-item > div {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-edit, .btn-delete {
             font-family: 'Press Start 2P', cursive;
-            background: var(--danger);
-            color: white;
-            border: 2px solid var(--danger);
+            border: 2px solid;
             padding: 8px 16px;
             font-size: 0.5rem;
             cursor: pointer;
-            transition: all 0.2s;
         }
-        .btn-delete:hover {
-            background: transparent;
-            color: var(--danger);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 0 var(--danger);
+        .btn-edit {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
-        .btn-delete:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 0 var(--danger);
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
         }
     </style>
 </body>

@@ -5,18 +5,23 @@
 
 /* ROOT VARIABLES - Easy to customize colors */
 :root {
-    /* Pink & Black Color Palette */
-    --bg-dark: #0a0a0a;
-    --bg-medium: #1a0a14;
-    --bg-light: #2a1a24;
-    --primary: #ff1493;
-    --secondary: #ff69b4;
-    --accent: #ff85c1;
-    --text: #ffb3d9;
-    --text-dim: #8b4570;
-    --border: #ff1493;
-    --danger: #ff0066;
-    --warning: #ff1493;
+    /* Ancient Rugged Parchment Palette */
+    --bg-dark: #4a4234;
+    --bg-medium: #5a5245;
+    --bg-light: #6a6255;
+    --primary: #d4c5a9;
+    --secondary: #b8a88d;
+    --accent: #8b7355;
+    --text: #c9b896;
+    --text-dim: #a89679;
+    --border: #3a3228;
+    --danger: #7A3B2E;
+    --warning: #9a8266;
+    --aged: #55493b;
+    --weathered: #6b5d4d;
+    --stained: #7a6a56;
+    --dark-edge: #2a231c;
+    --parchment-edge: #3b3329;
     
     /* Spacing */
     --spacing-xs: 8px;
@@ -35,17 +40,77 @@
 
 body {
     font-family: 'Press Start 2P', cursive;
-    background-color: var(--bg-dark);
+    background-color: #4a4234;
     color: var(--text);
     line-height: 1.8;
     min-height: 100vh;
-    /* Pink grid pattern for retro feel */
-    background-image: 
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 20, 147, 0.03) 2px, rgba(255, 20, 147, 0.03) 4px);
     overflow-x: hidden;
+    position: relative;
+    /* Ancient scroll background with VISIBLE texture */
+    background-image: 
+        /* Large age spots - very visible brown stains */
+        radial-gradient(ellipse 300px 200px at 18% 25%, rgba(100, 80, 60, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse 250px 250px at 82% 75%, rgba(90, 65, 50, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse 350px 180px at 50% 55%, rgba(80, 70, 55, 0.45) 0%, transparent 60%),
+        radial-gradient(ellipse 150px 150px at 12% 82%, rgba(100, 80, 60, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 180px 120px at 88% 18%, rgba(90, 65, 50, 0.28) 0%, transparent 50%),
+        radial-gradient(ellipse 120px 120px at 35% 15%, rgba(80, 70, 55, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse 140px 100px at 65% 88%, rgba(100, 80, 60, 0.3) 0%, transparent 50%),
+        /* Strong edge darkening - burnt scroll edges */
+        linear-gradient(180deg, rgba(20, 15, 10, 0.7) 0%, rgba(30, 25, 20, 0.3) 5%, transparent 12%, transparent 88%, rgba(30, 25, 20, 0.3) 95%, rgba(20, 15, 10, 0.7) 100%),
+        linear-gradient(90deg, rgba(20, 15, 10, 0.6) 0%, rgba(30, 25, 20, 0.25) 5%, transparent 12%, transparent 88%, rgba(30, 25, 20, 0.25) 95%, rgba(20, 15, 10, 0.6) 100%);
 }
 
-/* SCANLINE EFFECT - Creates CRT monitor feel */
+/* Strong paper fiber texture overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Visible paper grain texture */
+    background-image:
+        /* Horizontal fiber lines - STRONGER */
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1px,
+            rgba(70, 60, 45, 0.15) 1px,
+            rgba(70, 60, 45, 0.15) 2px,
+            transparent 2px,
+            transparent 4px
+        ),
+        /* Vertical fiber lines - STRONGER */
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 1px,
+            rgba(70, 60, 45, 0.12) 1px,
+            rgba(70, 60, 45, 0.12) 2px,
+            transparent 2px,
+            transparent 4px
+        ),
+        /* Medium texture spots */
+        radial-gradient(circle 8px at 22% 33%, rgba(80, 65, 50, 0.2) 0%, transparent 100%),
+        radial-gradient(circle 6px at 78% 67%, rgba(80, 65, 50, 0.18) 0%, transparent 100%),
+        radial-gradient(circle 7px at 45% 78%, rgba(80, 65, 50, 0.15) 0%, transparent 100%),
+        radial-gradient(circle 9px at 62% 22%, rgba(80, 65, 50, 0.2) 0%, transparent 100%),
+        radial-gradient(circle 5px at 15% 55%, rgba(80, 65, 50, 0.16) 0%, transparent 100%),
+        radial-gradient(circle 8px at 88% 45%, rgba(80, 65, 50, 0.18) 0%, transparent 100%),
+        radial-gradient(circle 6px at 38% 12%, rgba(80, 65, 50, 0.14) 0%, transparent 100%),
+        radial-gradient(circle 7px at 72% 85%, rgba(80, 65, 50, 0.17) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 1;
+}
+
+body > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* SCANLINE EFFECT - Creates aged parchment feel */
 .scanline {
     position: fixed;
     top: 0;
@@ -56,17 +121,12 @@ body {
     z-index: 9999;
     background: repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.15) 1px,
+        rgba(26, 20, 15, 0.05),
+        rgba(26, 20, 15, 0.05) 1px,
         transparent 1px,
-        transparent 2px
+        transparent 3px
     );
-    animation: scanline-move 8s linear infinite;
-}
-
-@keyframes scanline-move {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(10px); }
+    opacity: 0.7;
 }
 
 /* ============================================
@@ -92,10 +152,29 @@ body {
     font-size: clamp(1.5rem, 5vw, 3rem);
     color: var(--primary);
     text-shadow: 
-        3px 3px 0 var(--secondary),
-        6px 6px 0 var(--accent);
+        2px 2px 0 var(--dark-edge),
+        4px 4px 0 rgba(0, 0, 0, 0.5);
     margin-bottom: var(--spacing-md);
     position: relative;
+}
+
+/* Add medieval decorations */
+.game-title::before {
+    content: "🏰";
+    position: absolute;
+    left: -60px;
+    top: 0;
+    font-size: 3rem;
+    filter: sepia(100%) saturate(0.5) brightness(0.8) contrast(1.2);
+}
+
+.game-title::after {
+    content: "🗡️";
+    position: absolute;
+    right: -60px;
+    top: 0;
+    font-size: 3rem;
+    filter: sepia(100%) saturate(0.5) brightness(0.8) contrast(1.2);
 }
 
 /* Glitch animation on hover */
@@ -113,13 +192,7 @@ body {
 
 .subtitle {
     font-size: clamp(0.6rem, 2vw, 0.8rem);
-    color: var(--accent);
-    animation: blink 2s infinite;
-}
-
-@keyframes blink {
-    0%, 49% { opacity: 1; }
-    50%, 100% { opacity: 0.3; }
+    color: var(--text-dim);
 }
 
 /* Menu styling */
@@ -131,8 +204,14 @@ body {
 }
 
 .menu-item {
-    background: transparent;
-    border: 3px solid var(--text-dim);
+    background: 
+        linear-gradient(90deg,
+            rgba(212, 197, 169, 0.08) 0%,
+            rgba(201, 184, 150, 0.05) 50%,
+            rgba(212, 197, 169, 0.08) 100%
+        ),
+        var(--bg-medium);
+    border: 3px solid var(--parchment-edge);
     padding: var(--spacing-sm) var(--spacing-lg);
     cursor: pointer;
     transition: all 0.15s ease;
@@ -141,20 +220,31 @@ body {
     min-width: 300px;
     text-align: left;
     user-select: none;
-    color: var(--text-dim);
+    color: var(--text);
+    box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.2),
+        inset 0 10px 15px rgba(212, 197, 169, 0.03);
 }
 
 .menu-item:hover {
-    background: var(--primary);
-    color: var(--bg-dark);
-    border-color: var(--primary);
+    background: 
+        linear-gradient(90deg,
+            rgba(212, 197, 169, 0.15) 0%,
+            rgba(201, 184, 150, 0.1) 50%,
+            rgba(212, 197, 169, 0.15) 100%
+        ),
+        var(--weathered);
+    color: var(--primary);
+    border-color: var(--accent);
     transform: translateX(10px);
-    box-shadow: 0 0 20px var(--primary);
+    box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.3),
+        inset 0 10px 20px rgba(212, 197, 169, 0.05),
+        3px 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .menu-item:active {
     transform: translateX(10px) scale(0.95);
-    box-shadow: 0 0 30px var(--primary);
 }
 
 .menu-arrow {
@@ -186,7 +276,22 @@ body {
 
 .credits {
     margin-top: var(--spacing-sm);
-    color: var(--primary);
+    color: var(--text-dim);
+}
+
+/* Add medieval ornaments to footer */
+.footer-info::before {
+    content: "❦";
+    display: inline-block;
+    margin-right: 10px;
+    color: var(--accent);
+}
+
+.footer-info::after {
+    content: "❦";
+    display: inline-block;
+    margin-left: 10px;
+    color: var(--accent);
 }
 
 @keyframes fadeIn {
@@ -198,8 +303,9 @@ body {
    NAVIGATION BAR (all pages)
    ============================================ */
 .nav-bar {
-    background: var(--bg-medium);
-    border-bottom: 3px solid var(--border);
+    background: var(--aged);
+    border-bottom: 3px solid var(--dark-edge);
+    border-top: 2px solid var(--parchment-edge);
     padding: var(--spacing-sm) var(--spacing-md);
     display: flex;
     justify-content: space-between;
@@ -207,7 +313,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 0 rgba(255, 20, 147, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .nav-link {
@@ -220,10 +326,10 @@ body {
 }
 
 .nav-link:hover {
-    border-color: var(--primary);
-    background: rgba(255, 20, 147, 0.1);
+    border-color: var(--accent);
+    background: rgba(122, 59, 46, 0.1);
     transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+    box-shadow: 0 0 5px rgba(122, 59, 46, 0.3);
 }
 
 .nav-link:active {
@@ -243,6 +349,12 @@ body {
     margin: 0 auto;
     padding: var(--spacing-lg);
     animation: slideUp 0.5s ease-out;
+    background: linear-gradient(
+        180deg,
+        rgba(212, 197, 169, 0.03) 0%,
+        rgba(201, 184, 150, 0.02) 50%,
+        rgba(212, 197, 169, 0.03) 100%
+    );
 }
 
 @keyframes slideUp {
@@ -254,9 +366,44 @@ body {
     text-align: center;
     margin-bottom: var(--spacing-xl);
     padding: var(--spacing-lg);
-    background: var(--bg-medium);
-    border: 3px solid var(--border);
-    box-shadow: 0 0 30px rgba(255, 20, 147, 0.2);
+    background: 
+        linear-gradient(180deg, 
+            rgba(212, 197, 169, 0.15) 0%,
+            rgba(201, 184, 150, 0.1) 50%,
+            rgba(212, 197, 169, 0.15) 100%
+        ),
+        var(--bg-medium);
+    border: 3px solid var(--dark-edge);
+    border-top: 4px solid var(--parchment-edge);
+    box-shadow: 
+        inset 0 0 40px rgba(0, 0, 0, 0.3),
+        inset 0 20px 30px rgba(212, 197, 169, 0.05),
+        inset 0 -20px 30px rgba(90, 82, 69, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.4);
+    position: relative;
+}
+
+/* Medieval manuscript decorations for headers */
+.page-header::before {
+    content: "⚔ ❂ ⚔";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    letter-spacing: 30px;
+    color: var(--accent);
+}
+
+.page-header::after {
+    content: "❧ ✣ ❧";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    letter-spacing: 30px;
+    color: var(--accent);
 }
 
 .page-header h1 {
@@ -284,7 +431,9 @@ body {
 
 .entry-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 30px rgba(255, 20, 147, 0.3);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.4),
+        0 5px 15px rgba(0, 0, 0, 0.5);
     border-color: var(--accent);
 }
 
@@ -293,8 +442,10 @@ body {
 }
 
 .entry-card.expanded {
-    border-color: var(--primary);
-    box-shadow: 0 0 40px rgba(255, 20, 147, 0.5);
+    border-color: var(--accent);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.45),
+        0 5px 20px rgba(0, 0, 0, 0.6);
 }
 
 .entry-header {
@@ -463,7 +614,9 @@ body {
 
 .note-card:hover {
     transform: translateX(10px);
-    box-shadow: 0 0 30px rgba(255, 20, 147, 0.3);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.4),
+        3px 3px 10px rgba(0, 0, 0, 0.5);
 }
 
 .note-card:active {
@@ -472,8 +625,10 @@ body {
 
 .note-card.expanded {
     transform: translateX(15px);
-    border-color: var(--primary);
-    box-shadow: 0 0 40px rgba(255, 20, 147, 0.5);
+    border-color: var(--accent);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.45),
+        5px 5px 15px rgba(0, 0, 0, 0.6);
 }
 
 /* Different colors for different note types */
@@ -563,10 +718,44 @@ body {
 }
 
 .newspaper-article {
-    background: var(--bg-medium);
-    border: 3px solid var(--border);
+    background: 
+        linear-gradient(180deg,
+            rgba(212, 197, 169, 0.12) 0%,
+            rgba(201, 184, 150, 0.08) 50%,
+            rgba(212, 197, 169, 0.12) 100%
+        ),
+        var(--bg-medium);
+    border: 3px solid var(--dark-edge);
+    border-left: 5px solid var(--parchment-edge);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
+    position: relative;
+    box-shadow: 
+        inset 0 0 40px rgba(0, 0, 0, 0.3),
+        inset 0 15px 25px rgba(212, 197, 169, 0.04),
+        inset 0 -15px 25px rgba(90, 82, 69, 0.06),
+        3px 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Medieval manuscript decorations */
+.newspaper-article::before {
+    content: "❧";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    font-size: 1.8rem;
+    color: var(--accent);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.newspaper-article::after {
+    content: "✣";
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    font-size: 1.5rem;
+    color: var(--accent);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .article-header {
