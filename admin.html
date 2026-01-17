@@ -8,9 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Replace the nav-bar in admin.html with: -->
     <nav class="nav-bar">
         <a href="index.html" class="nav-link">◄ HOME</a>
         <span class="nav-title">ADMIN SANCTUM</span>
+        <a href="#" onclick="logout(); return false;" class="nav-link">LOGOUT ►</a>
     </nav>
 
     <main class="content-container">
@@ -121,6 +123,27 @@
             messagingSenderId: "384802123307",
             appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
             measurementId: "G-T6FS3XQFVW"
+        };
+
+        // Add this to the top of admin.html, right after the Firebase imports
+
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const auth = getAuth(app);
+
+        // Check if user is authenticated
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // User not logged in, redirect to login page
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Add logout function
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = 'login.html';
+            });
         };
 
         const app = initializeApp(firebaseConfig);
