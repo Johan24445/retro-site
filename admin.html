@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN - ÜBERMENSCH.EXE</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Replace the nav-bar in admin.html with: -->
     <nav class="nav-bar">
         <a href="index.html" class="nav-link">◄ HOME</a>
         <span class="nav-title">ADMIN SANCTUM</span>
@@ -114,6 +113,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
@@ -125,29 +125,25 @@
             measurementId: "G-T6FS3XQFVW"
         };
 
-        // Add this to the top of admin.html, right after the Firebase imports
-
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
         const auth = getAuth(app);
 
         // Check if user is authenticated
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // User not logged in, redirect to login page
                 window.location.href = 'login.html';
             }
         });
 
-        // Add logout function
+        // Logout function
         window.logout = function() {
             signOut(auth).then(() => {
                 window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Logout error:', error);
             });
         };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
 
         let liftMediaCount = 0;
         let thoughtMediaCount = 0;
@@ -155,14 +151,24 @@
         document.getElementById('lift-date').valueAsDate = new Date();
         document.getElementById('thought-date').valueAsDate = new Date();
 
-        // Tab switching
+        // Tab switching - FIXED
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', function() {
+                console.log('Tab clicked:', this.dataset.tab);
+                
+                // Remove active from all tabs and content
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
-                if (btn.dataset.tab === 'manage') loadManageLists();
+                
+                // Add active to clicked tab
+                this.classList.add('active');
+                const tabName = this.dataset.tab;
+                document.getElementById(tabName + '-tab').classList.add('active');
+                
+                // Load manage lists if needed
+                if (tabName === 'manage') {
+                    loadManageLists();
+                }
             });
         });
 
