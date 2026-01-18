@@ -4,25 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THOUGHTS - ÜBERMENSCH.EXE</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.2">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation bar -->
     <nav class="nav-bar">
         <a href="index.html" class="nav-link">◄ HOME</a>
         <span class="nav-title">THOUGHTS</span>
         <a href="admin.html" class="nav-link">ADMIN ►</a>
     </nav>
 
-    <!-- Main content -->
     <main class="content-container">
         <div class="page-header">
             <h1>🌿 THOUGHTS & IDEAS </h1>
             <p class="subtitle">I THINK THEREFORE I AM</p>
         </div>
 
-        <!-- Thoughts will be loaded here -->
         <div id="thoughts-container" class="newspaper-container">
             <div class="empty-state">
                 <p>NO THOUGHTS FOUND</p>
@@ -31,28 +28,25 @@
         </div>
     </main>
 
-    <!-- Scanline effect -->
     <div class="scanline"></div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
-       const firebaseConfig = {
-  apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
-  authDomain: "retrosite-7977d.firebaseapp.com",
-  projectId: "retrosite-7977d",
-  storageBucket: "retrosite-7977d.firebasestorage.app",
-  messagingSenderId: "384802123307",
-  appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
-  measurementId: "G-T6FS3XQFVW"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
+            authDomain: "retrosite-7977d.firebaseapp.com",
+            projectId: "retrosite-7977d",
+            storageBucket: "retrosite-7977d.firebasestorage.app",
+            messagingSenderId: "384802123307",
+            appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
+            measurementId: "G-T6FS3XQFVW"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Load thoughts when page loads
         loadThoughts();
 
         async function loadThoughts() {
@@ -72,32 +66,13 @@
                     return;
                 }
 
-                // Build HTML for all thoughts in newspaper layout
                 let html = '';
                 querySnapshot.forEach((doc) => {
                     const thought = doc.data();
-                    html += `
-                        <article class="newspaper-article">
-                            <div class="article-header">
-                                <h2 class="article-title">${thought.title}</h2>
-                                <span class="article-date">${thought.date}</span>
-                            </div>
-                            
-                            <div class="article-content">
-                                ${thought.imageUrl ? `
-                                    <div class="article-media">
-                                        <div class="image-wrapper">
-                                            <img src="${thought.imageUrl}" alt="${thought.title}" loading="lazy">
-                                        </div>
-                                    </div>
-                                ` : ''}
-                                
-                                <div class="article-text ${!thought.imageUrl ? 'full-width' : ''}">
-                                    <p>${thought.content.replace(/\n/g, '<br>')}</p>
-                                </div>
-                            </div>
-                        </article>
-                    `;
+                    console.log('Loading thought:', thought.title);
+                    console.log('Has imageUrl:', !!thought.imageUrl);
+                    console.log('Has media array:', Array.isArray(thought.media));
+                    html += renderThought(thought);
                 });
                 
                 container.innerHTML = html;
@@ -111,6 +86,129 @@
                     </div>
                 `;
             }
+        }
+
+        function renderThought(thought) {
+            // Get images from BOTH old format (imageUrl) and new format (media array)
+            let images = [];
+            
+            // NEW FORMAT: Check media array first
+            if (Array.isArray(thought.media) && thought.media.length > 0) {
+                console.log('Using media array for:', thought.title);
+                images = thought.media
+                    .filter(m => m.type === 'image')
+                    .map(m => m.url);
+                console.log('Found images in media array:', images.length);
+            }
+            // OLD FORMAT: Fallback to imageUrl
+            else if (thought.imageUrl && thought.imageUrl.trim()) {
+                console.log('Using imageUrl for:', thought.title);
+                images = [thought.imageUrl];
+            }
+            
+            const content = thought.content || '';
+            const imageCount = images.length;
+            
+            console.log('Final image count:', imageCount);
+            
+            // Add drop cap to first word
+            const formattedContent = addDropCap(content);
+            
+            // No images - full width text
+            if (imageCount === 0) {
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${thought.title}</h2>
+                            <span class="article-date">${thought.date}</span>
+                        </div>
+                        <div class="article-content single-column">
+                            <div class="article-text full-width">
+                                ${formattedContent}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            // Only images, no text - display images side by side
+            if (imageCount > 0 && !content.trim()) {
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${thought.title}</h2>
+                            <span class="article-date">${thought.date}</span>
+                        </div>
+                        <div class="article-content">
+                            <div class="image-gallery">
+                                ${images.map(url => `
+                                    <div class="gallery-image">
+                                        <img src="${url}" alt="${thought.title}" loading="lazy">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            // 1 image with text - image floats left, text wraps around
+            if (imageCount === 1) {
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${thought.title}</h2>
+                            <span class="article-date">${thought.date}</span>
+                        </div>
+                        <div class="article-content single-column">
+                            <div class="float-image">
+                                <img src="${images[0]}" alt="${thought.title}" loading="lazy">
+                            </div>
+                            <div class="article-text">
+                                ${formattedContent}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            // 2+ images with text - two column layout
+            return `
+                <article class="newspaper-article">
+                    <div class="article-header">
+                        <h2 class="article-title">${thought.title}</h2>
+                        <span class="article-date">${thought.date}</span>
+                    </div>
+                    <div class="article-content two-column">
+                        <div class="article-media">
+                            ${images.map(url => `
+                                <div class="stacked-image">
+                                    <img src="${url}" alt="${thought.title}" loading="lazy">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="article-text">
+                            ${formattedContent}
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function addDropCap(text) {
+            if (!text || !text.trim()) return '';
+            
+            // Replace line breaks with proper HTML
+            text = text.replace(/\n/g, '<br>');
+            
+            // Find first letter
+            const match = text.match(/^(\w)/);
+            if (!match) return `<p>${text}</p>`;
+            
+            const firstLetter = match[1];
+            const restOfText = text.substring(1);
+            
+            return `<p><span class="drop-cap">${firstLetter.toUpperCase()}</span>${restOfText}</p>`;
         }
     </script>
     <script src="script.js"></script>

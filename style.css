@@ -1,11 +1,11 @@
 /* ============================================
    RETRO 8-BIT WEBSITE STYLES
-   NES-inspired color palette and pixel aesthetic
+   Parchment-inspired color palette
    ============================================ */
 
 /* ROOT VARIABLES - Easy to customize colors */
 :root {
-    /* Ancient Rugged Parchment Palette */
+    /* Ancient Parchment Palette */
     --bg-dark: #4a4234;
     --bg-medium: #5a5245;
     --bg-light: #6a6255;
@@ -46,71 +46,9 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
-    /* Ancient scroll background with VISIBLE texture */
-    background-image: 
-        /* Large age spots - very visible brown stains */
-        radial-gradient(ellipse 300px 200px at 18% 25%, rgba(100, 80, 60, 0.4) 0%, transparent 50%),
-        radial-gradient(ellipse 250px 250px at 82% 75%, rgba(90, 65, 50, 0.35) 0%, transparent 50%),
-        radial-gradient(ellipse 350px 180px at 50% 55%, rgba(80, 70, 55, 0.45) 0%, transparent 60%),
-        radial-gradient(ellipse 150px 150px at 12% 82%, rgba(100, 80, 60, 0.3) 0%, transparent 50%),
-        radial-gradient(ellipse 180px 120px at 88% 18%, rgba(90, 65, 50, 0.28) 0%, transparent 50%),
-        radial-gradient(ellipse 120px 120px at 35% 15%, rgba(80, 70, 55, 0.25) 0%, transparent 50%),
-        radial-gradient(ellipse 140px 100px at 65% 88%, rgba(100, 80, 60, 0.3) 0%, transparent 50%),
-        /* Strong edge darkening - burnt scroll edges */
-        linear-gradient(180deg, rgba(20, 15, 10, 0.7) 0%, rgba(30, 25, 20, 0.3) 5%, transparent 12%, transparent 88%, rgba(30, 25, 20, 0.3) 95%, rgba(20, 15, 10, 0.7) 100%),
-        linear-gradient(90deg, rgba(20, 15, 10, 0.6) 0%, rgba(30, 25, 20, 0.25) 5%, transparent 12%, transparent 88%, rgba(30, 25, 20, 0.25) 95%, rgba(20, 15, 10, 0.6) 100%);
 }
 
-/* Strong paper fiber texture overlay */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* Visible paper grain texture */
-    background-image:
-        /* Horizontal fiber lines - STRONGER */
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 1px,
-            rgba(70, 60, 45, 0.15) 1px,
-            rgba(70, 60, 45, 0.15) 2px,
-            transparent 2px,
-            transparent 4px
-        ),
-        /* Vertical fiber lines - STRONGER */
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 1px,
-            rgba(70, 60, 45, 0.12) 1px,
-            rgba(70, 60, 45, 0.12) 2px,
-            transparent 2px,
-            transparent 4px
-        ),
-        /* Medium texture spots */
-        radial-gradient(circle 8px at 22% 33%, rgba(80, 65, 50, 0.2) 0%, transparent 100%),
-        radial-gradient(circle 6px at 78% 67%, rgba(80, 65, 50, 0.18) 0%, transparent 100%),
-        radial-gradient(circle 7px at 45% 78%, rgba(80, 65, 50, 0.15) 0%, transparent 100%),
-        radial-gradient(circle 9px at 62% 22%, rgba(80, 65, 50, 0.2) 0%, transparent 100%),
-        radial-gradient(circle 5px at 15% 55%, rgba(80, 65, 50, 0.16) 0%, transparent 100%),
-        radial-gradient(circle 8px at 88% 45%, rgba(80, 65, 50, 0.18) 0%, transparent 100%),
-        radial-gradient(circle 6px at 38% 12%, rgba(80, 65, 50, 0.14) 0%, transparent 100%),
-        radial-gradient(circle 7px at 72% 85%, rgba(80, 65, 50, 0.17) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 1;
-}
-
-body > * {
-    position: relative;
-    z-index: 2;
-}
-
-/* SCANLINE EFFECT - Creates aged parchment feel */
+/* SCANLINE EFFECT */
 .scanline {
     position: fixed;
     top: 0;
@@ -158,25 +96,6 @@ body > * {
     position: relative;
 }
 
-/* Add medieval decorations */
-.game-title::before {
-    content: "🏰";
-    position: absolute;
-    left: -60px;
-    top: 0;
-    font-size: 3rem;
-    filter: sepia(100%) saturate(0.5) brightness(0.8) contrast(1.2);
-}
-
-.game-title::after {
-    content: "🗡️";
-    position: absolute;
-    right: -60px;
-    top: 0;
-    font-size: 3rem;
-    filter: sepia(100%) saturate(0.5) brightness(0.8) contrast(1.2);
-}
-
 /* Glitch animation on hover */
 .glitch:hover {
     animation: glitch 0.3s ease-in-out;
@@ -204,13 +123,7 @@ body > * {
 }
 
 .menu-item {
-    background: 
-        linear-gradient(90deg,
-            rgba(212, 197, 169, 0.08) 0%,
-            rgba(201, 184, 150, 0.05) 50%,
-            rgba(212, 197, 169, 0.08) 100%
-        ),
-        var(--bg-medium);
+    background: var(--bg-medium);
     border: 3px solid var(--parchment-edge);
     padding: var(--spacing-sm) var(--spacing-lg);
     cursor: pointer;
@@ -221,26 +134,14 @@ body > * {
     text-align: left;
     user-select: none;
     color: var(--text);
-    box-shadow: 
-        inset 0 0 20px rgba(0, 0, 0, 0.2),
-        inset 0 10px 15px rgba(212, 197, 169, 0.03);
 }
 
 .menu-item:hover {
-    background: 
-        linear-gradient(90deg,
-            rgba(212, 197, 169, 0.15) 0%,
-            rgba(201, 184, 150, 0.1) 50%,
-            rgba(212, 197, 169, 0.15) 100%
-        ),
-        var(--weathered);
+    background: var(--weathered);
     color: var(--primary);
     border-color: var(--accent);
     transform: translateX(10px);
-    box-shadow: 
-        inset 0 0 20px rgba(0, 0, 0, 0.3),
-        inset 0 10px 20px rgba(212, 197, 169, 0.05),
-        3px 3px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .menu-item:active {
@@ -277,21 +178,6 @@ body > * {
 .credits {
     margin-top: var(--spacing-sm);
     color: var(--text-dim);
-}
-
-/* Add medieval ornaments to footer */
-.footer-info::before {
-    content: "❦";
-    display: inline-block;
-    margin-right: 10px;
-    color: var(--accent);
-}
-
-.footer-info::after {
-    content: "❦";
-    display: inline-block;
-    margin-left: 10px;
-    color: var(--accent);
 }
 
 @keyframes fadeIn {
@@ -349,12 +235,6 @@ body > * {
     margin: 0 auto;
     padding: var(--spacing-lg);
     animation: slideUp 0.5s ease-out;
-    background: linear-gradient(
-        180deg,
-        rgba(212, 197, 169, 0.03) 0%,
-        rgba(201, 184, 150, 0.02) 50%,
-        rgba(212, 197, 169, 0.03) 100%
-    );
 }
 
 @keyframes slideUp {
@@ -366,44 +246,13 @@ body > * {
     text-align: center;
     margin-bottom: var(--spacing-xl);
     padding: var(--spacing-lg);
-    background: 
-        linear-gradient(180deg, 
-            rgba(212, 197, 169, 0.15) 0%,
-            rgba(201, 184, 150, 0.1) 50%,
-            rgba(212, 197, 169, 0.15) 100%
-        ),
-        var(--bg-medium);
+    background: var(--bg-medium);
     border: 3px solid var(--dark-edge);
     border-top: 4px solid var(--parchment-edge);
     box-shadow: 
         inset 0 0 40px rgba(0, 0, 0, 0.3),
-        inset 0 20px 30px rgba(212, 197, 169, 0.05),
-        inset 0 -20px 30px rgba(90, 82, 69, 0.08),
         0 4px 12px rgba(0, 0, 0, 0.4);
     position: relative;
-}
-
-/* Medieval manuscript decorations for headers */
-.page-header::before {
-    content: "⚔ ❂ ⚔";
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.2rem;
-    letter-spacing: 30px;
-    color: var(--accent);
-}
-
-.page-header::after {
-    content: "❧ ✣ ❧";
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1rem;
-    letter-spacing: 30px;
-    color: var(--accent);
 }
 
 .page-header h1 {
@@ -496,10 +345,6 @@ body > * {
     width: 100%;
     height: auto;
     display: block;
-    /* Pixelated effect for retro feel */
-    image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: crisp-edges;
 }
 
 .entry-notes {
@@ -718,13 +563,7 @@ body > * {
 }
 
 .newspaper-article {
-    background: 
-        linear-gradient(180deg,
-            rgba(212, 197, 169, 0.12) 0%,
-            rgba(201, 184, 150, 0.08) 50%,
-            rgba(212, 197, 169, 0.12) 100%
-        ),
-        var(--bg-medium);
+    background: var(--bg-medium);
     border: 3px solid var(--dark-edge);
     border-left: 5px solid var(--parchment-edge);
     padding: var(--spacing-lg);
@@ -732,30 +571,7 @@ body > * {
     position: relative;
     box-shadow: 
         inset 0 0 40px rgba(0, 0, 0, 0.3),
-        inset 0 15px 25px rgba(212, 197, 169, 0.04),
-        inset 0 -15px 25px rgba(90, 82, 69, 0.06),
         3px 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-/* Medieval manuscript decorations */
-.newspaper-article::before {
-    content: "❧";
-    position: absolute;
-    top: -15px;
-    left: -15px;
-    font-size: 1.8rem;
-    color: var(--accent);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.newspaper-article::after {
-    content: "✣";
-    position: absolute;
-    bottom: -10px;
-    right: -10px;
-    font-size: 1.5rem;
-    color: var(--accent);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .article-header {
@@ -829,6 +645,152 @@ body > * {
     margin-bottom: var(--spacing-md);
 }
 
+/* ============================================
+   NEWSPAPER DROP CAP (First Letter Large)
+   ============================================ */
+.drop-cap {
+    float: left;
+    font-size: 3.5rem;
+    line-height: 0.8;
+    margin: 0.1em 0.1em 0 0;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* ============================================
+   SINGLE COLUMN LAYOUTS
+   ============================================ */
+.article-content.single-column {
+    display: block;
+}
+
+/* Floating image - text wraps around */
+.float-image {
+    float: left;
+    width: 40%;
+    max-width: 350px;
+    margin: 0 var(--spacing-md) var(--spacing-md) 0;
+    border: 3px solid var(--primary);
+}
+
+.float-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Floating video - text wraps around */
+.float-video {
+    float: left;
+    width: 45%;
+    max-width: 400px;
+    margin: 0 var(--spacing-md) var(--spacing-md) 0;
+    border: 3px solid var(--primary);
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 ratio */
+    height: 0;
+}
+
+.float-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================
+   TWO COLUMN LAYOUTS (2+ images)
+   ============================================ */
+.article-content.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    align-items: start;
+}
+
+.article-media {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.stacked-image {
+    border: 3px solid var(--primary);
+    width: 100%;
+}
+
+.stacked-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.stacked-video {
+    border: 3px solid var(--primary);
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+}
+
+.stacked-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================
+   MEDIA GALLERIES (only images/videos, no text)
+   ============================================ */
+.image-gallery,
+.media-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.gallery-image {
+    border: 3px solid var(--primary);
+}
+
+.gallery-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.gallery-video {
+    border: 3px solid var(--primary);
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+}
+
+.gallery-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================
+   FULL WIDTH TEXT (no media)
+   ============================================ */
+.article-text.full-width {
+    grid-column: 1 / -1;
+    column-count: 2;
+    column-gap: var(--spacing-lg);
+    text-align: justify;
+}
+
+.article-text.full-width p {
+    margin-bottom: var(--spacing-md);
+}
+
 /* Mobile responsive for newspaper layout */
 @media (max-width: 768px) {
     .article-content {
@@ -841,6 +803,27 @@ body > * {
     
     .article-text {
         order: 2;
+    }
+    
+    .float-image,
+    .float-video {
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 0 var(--spacing-md) 0;
+    }
+    
+    .article-text.full-width {
+        column-count: 1;
+    }
+    
+    .image-gallery,
+    .media-gallery {
+        grid-template-columns: 1fr;
+    }
+    
+    .drop-cap {
+        font-size: 2.5rem;
     }
 }
 
@@ -931,7 +914,7 @@ body > * {
 .form-group select:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+    box-shadow: 0 0 10px rgba(139, 115, 85, 0.5);
 }
 
 .form-group small {
@@ -1018,7 +1001,7 @@ body > * {
     margin: var(--spacing-sm) 0;
     padding: var(--spacing-sm);
     border: 2px solid var(--warning);
-    background: rgba(255, 190, 11, 0.1);
+    background: rgba(154, 130, 102, 0.1);
 }
 
 /* Message display */
@@ -1050,6 +1033,66 @@ body > * {
     to { transform: translateX(0); }
 }
 
+.manage-list {
+    margin-bottom: var(--spacing-md);
+}
+
+.manage-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background: var(--bg-dark);
+    border: 2px solid var(--border);
+    font-size: 0.6rem;
+}
+
+.manage-item > div {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-edit, .btn-delete {
+    font-family: 'Press Start 2P', cursive;
+    border: 2px solid;
+    padding: 8px 16px;
+    font-size: 0.5rem;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.btn-delete {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+}
+
+.btn-delete:hover {
+    background: transparent;
+    color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 var(--danger);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 var(--danger);
+}
+
+/* Selected menu state for keyboard navigation */
+.menu-item.selected {
+    background: var(--primary) !important;
+    color: var(--bg-dark) !important;
+    transform: translateX(10px);
+    box-shadow: 0 0 20px var(--primary);
+}
+
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
@@ -1071,6 +1114,14 @@ body > * {
     .message {
         right: var(--spacing-sm);
         left: var(--spacing-sm);
+    }
+    
+    .article-content.two-column {
+        grid-template-columns: 1fr;
+    }
+    
+    .drop-cap {
+        font-size: 2rem;
     }
 }
 

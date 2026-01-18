@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LIFTS - ÜBERMENSCH.EXE</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.2">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation bar at top -->
     <nav class="nav-bar">
         <a href="index.html" class="nav-link">◄ HOME</a>
         <span class="nav-title">LIFTS</span>
         <a href="admin.html" class="nav-link">ADMIN ►</a>
     </nav>
 
-    <!-- Main content area -->
     <main class="content-container">
         <div class="page-header">
-            <h1>🌲 LIFTS </h1>
+            <h1>🏋️ LIFTS </h1>
             <p class="subtitle">SALVATION TO THE VESSEL OF THE SOUL</p>
         </div>
 
-        <!-- This is where lift entries will be dynamically loaded -->
         <div id="lifts-container" class="newspaper-container">
-            <!-- Entries will be inserted here by JavaScript -->
             <div class="empty-state">
                 <p>NO ENTRIES FOUND</p>
                 <p class="small">GO TO ADMIN TO ADD YOUR FIRST LIFT</p>
@@ -32,37 +28,31 @@
         </div>
     </main>
 
-    <!-- Scanline effect -->
     <div class="scanline"></div>
 
     <script type="module">
-        // Import Firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
         const firebaseConfig = {
-  apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
-  authDomain: "retrosite-7977d.firebaseapp.com",
-  projectId: "retrosite-7977d",
-  storageBucket: "retrosite-7977d.firebasestorage.app",
-  messagingSenderId: "384802123307",
-  appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
-  measurementId: "G-T6FS3XQFVW"
-};
+            apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
+            authDomain: "retrosite-7977d.firebaseapp.com",
+            projectId: "retrosite-7977d",
+            storageBucket: "retrosite-7977d.firebasestorage.app",
+            messagingSenderId: "384802123307",
+            appId: "1:384802123307:web:179cdf172e70ad0d4b046e",
+            measurementId: "G-T6FS3XQFVW"
+        };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Load lift entries when page loads
         loadLifts();
 
         async function loadLifts() {
             const container = document.getElementById('lifts-container');
             
             try {
-                // Get all lift entries from Firestore, ordered by date
                 const q = query(collection(db, 'lifts'), orderBy('timestamp', 'desc'));
                 const querySnapshot = await getDocs(q);
                 
@@ -76,41 +66,11 @@
                     return;
                 }
 
-                // Build HTML for all entries in newspaper layout
                 let html = '';
                 querySnapshot.forEach((doc) => {
-                    const entry = doc.data();
-                    html += `
-                        <article class="newspaper-article">
-                            <div class="article-header">
-                                <h2 class="article-title">${entry.title}</h2>
-                                <span class="article-date">${entry.date}</span>
-                            </div>
-                            
-                            <div class="article-content">
-                                <div class="article-media">
-                                    ${entry.videoUrl ? `
-                                        <div class="video-wrapper">
-                                            <iframe 
-                                                src="${getYouTubeEmbedUrl(entry.videoUrl)}" 
-                                                frameborder="0" 
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                allowfullscreen>
-                                            </iframe>
-                                        </div>
-                                    ` : entry.imageUrl ? `
-                                        <div class="image-wrapper">
-                                            <img src="${entry.imageUrl}" alt="${entry.title}" loading="lazy">
-                                        </div>
-                                    ` : ''}
-                                </div>
-                                
-                                <div class="article-text">
-                                    <p>${entry.notes.replace(/\n/g, '<br>')}</p>
-                                </div>
-                            </div>
-                        </article>
-                    `;
+                    const lift = doc.data();
+                    console.log('Loading lift:', lift.title);
+                    html += renderLift(lift);
                 });
                 
                 container.innerHTML = html;
@@ -126,9 +86,174 @@
             }
         }
 
+        function renderLift(lift) {
+            // Get videos and images from BOTH formats
+            let videos = [];
+            let images = [];
+            
+            // NEW FORMAT: Check media array first
+            if (Array.isArray(lift.media) && lift.media.length > 0) {
+                console.log('Using media array for:', lift.title);
+                videos = lift.media
+                    .filter(m => m.type === 'video')
+                    .map(m => m.url);
+                images = lift.media
+                    .filter(m => m.type === 'image')
+                    .map(m => m.url);
+            } 
+            // OLD FORMAT: Check individual fields
+            else {
+                if (lift.videoUrl && lift.videoUrl.trim()) {
+                    videos = [lift.videoUrl];
+                }
+                if (lift.imageUrl && lift.imageUrl.trim()) {
+                    images = [lift.imageUrl];
+                }
+            }
+            
+            const notes = lift.notes || '';
+            const totalMedia = videos.length + images.length;
+            
+            console.log('Videos:', videos.length, 'Images:', images.length);
+            
+            // Add drop cap to first word
+            const formattedNotes = addDropCap(notes);
+            
+            // No media - full width text
+            if (totalMedia === 0) {
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${lift.title}</h2>
+                            <span class="article-date">${lift.date}</span>
+                        </div>
+                        <div class="article-content single-column">
+                            <div class="article-text full-width">
+                                ${formattedNotes}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            // Only media, no text - display side by side
+            if (totalMedia > 0 && !notes.trim()) {
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${lift.title}</h2>
+                            <span class="article-date">${lift.date}</span>
+                        </div>
+                        <div class="article-content">
+                            <div class="media-gallery">
+                                ${videos.map(url => `
+                                    <div class="gallery-video">
+                                        <iframe 
+                                            src="${getYouTubeEmbedUrl(url)}" 
+                                            frameborder="0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                `).join('')}
+                                ${images.map(url => `
+                                    <div class="gallery-image">
+                                        <img src="${url}" alt="${lift.title}" loading="lazy">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            // 1 media item with text - media floats left, text wraps
+            if (totalMedia === 1) {
+                const hasVideo = videos.length > 0;
+                const mediaUrl = hasVideo ? videos[0] : images[0];
+                
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${lift.title}</h2>
+                            <span class="article-date">${lift.date}</span>
+                        </div>
+                        <div class="article-content single-column">
+                            ${hasVideo ? `
+                                <div class="float-video">
+                                    <iframe 
+                                        src="${getYouTubeEmbedUrl(mediaUrl)}" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                            ` : `
+                                <div class="float-image">
+                                    <img src="${mediaUrl}" alt="${lift.title}" loading="lazy">
+                                </div>
+                            `}
+                            <div class="article-text">
+                                ${formattedNotes}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            // 2+ media items with text - two column layout
+            return `
+                <article class="newspaper-article">
+                    <div class="article-header">
+                        <h2 class="article-title">${lift.title}</h2>
+                        <span class="article-date">${lift.date}</span>
+                    </div>
+                    <div class="article-content two-column">
+                        <div class="article-media">
+                            ${videos.map(url => `
+                                <div class="stacked-video">
+                                    <iframe 
+                                        src="${getYouTubeEmbedUrl(url)}" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                            `).join('')}
+                            ${images.map(url => `
+                                <div class="stacked-image">
+                                    <img src="${url}" alt="${lift.title}" loading="lazy">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="article-text">
+                            ${formattedNotes}
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
         function getYouTubeEmbedUrl(url) {
+            if (!url) return '';
             const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
             return videoId ? `https://www.youtube.com/embed/${videoId[1]}` : url;
+        }
+
+        function addDropCap(text) {
+            if (!text || !text.trim()) return '';
+            
+            // Replace line breaks with proper HTML
+            text = text.replace(/\n/g, '<br>');
+            
+            // Find first letter
+            const match = text.match(/^(\w)/);
+            if (!match) return `<p>${text}</p>`;
+            
+            const firstLetter = match[1];
+            const restOfText = text.substring(1);
+            
+            return `<p><span class="drop-cap">${firstLetter.toUpperCase()}</span>${restOfText}</p>`;
         }
     </script>
     <script src="script.js"></script>
