@@ -15,10 +15,18 @@
     </nav>
 
     <main class="content-container">
-        <div class="page-header">
-            <h1>🏋️ LIFTS </h1>
-            <p class="subtitle">SALVATION TO THE VESSEL OF THE SOUL</p>
-        </div>
+   <div class="page-header">
+    <h1>
+        <img src="images/dumbbell2.png" width="60" height="60" style="display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 12px; image-rendering: pixelated;" alt="dumbbell">
+        <img src="images/dumbbell2.png" width="60" height="60" style="display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 12px; image-rendering: pixelated;" alt="dumbbell">
+        <img src="images/dumbbell2.png" width="60" height="60" style="display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 12px; image-rendering: pixelated;" alt="dumbbell">
+        LIFTS
+        <img src="images/heart.png" width="50" height="50" style="display: inline-block; vertical-align: middle; margin-left: 10px; margin-bottom: 14px; image-rendering: pixelated;" alt="heart">
+        <img src="images/heart.png" width="50" height="50" style="display: inline-block; vertical-align: middle; margin-left: 10px; margin-bottom: 14px; image-rendering: pixelated;" alt="heart">
+        <img src="images/heart.png" width="50" height="50" style="display: inline-block; vertical-align: middle; margin-left: 10px; margin-bottom: 14px; image-rendering: pixelated;" alt="heart">
+    </h1>
+    <p class="subtitle">SALVATION TO THE VESSEL OF THE SOUL</p>
+</div>
 
         <div id="lifts-container" class="newspaper-container">
             <div class="empty-state">
@@ -67,10 +75,12 @@
                 }
 
                 let html = '';
+                let index = 0;
                 querySnapshot.forEach((doc) => {
                     const lift = doc.data();
                     console.log('Loading lift:', lift.title);
-                    html += renderLift(lift);
+                    html += renderLift(lift, index);
+                    index++;
                 });
                 
                 container.innerHTML = html;
@@ -86,7 +96,10 @@
             }
         }
 
-        function renderLift(lift) {
+        function renderLift(lift, index) {
+            // Determine if media should be on left or right (alternate)
+            const mediaOnLeft = index % 2 === 0;
+            
             // Get videos and images from BOTH formats
             let videos = [];
             let images = [];
@@ -167,7 +180,7 @@
                 `;
             }
             
-            // 1 media item with text - media floats left, text wraps
+            // 1 media item with text - media floats (CSS handles left/right alternating)
             if (totalMedia === 1) {
                 const hasVideo = videos.length > 0;
                 const mediaUrl = hasVideo ? videos[0] : images[0];
@@ -196,6 +209,7 @@
                             <div class="article-text">
                                 ${formattedNotes}
                             </div>
+                            <div style="clear: both;"></div>
                         </div>
                     </article>
                 `;

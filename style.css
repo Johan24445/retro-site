@@ -666,11 +666,21 @@ body {
 
 /* Floating image - text wraps around */
 .float-image {
-    float: left;
     width: 40%;
     max-width: 350px;
-    margin: 0 var(--spacing-md) var(--spacing-md) 0;
     border: 3px solid var(--primary);
+}
+
+/* Default: images on left for odd articles */
+.newspaper-article:nth-child(odd) .float-image {
+    float: left;
+    margin: 0 var(--spacing-md) var(--spacing-md) 0;
+}
+
+/* Images on right for even articles */
+.newspaper-article:nth-child(even) .float-image {
+    float: right;
+    margin: 0 0 var(--spacing-md) var(--spacing-md);
 }
 
 .float-image img {
@@ -681,14 +691,24 @@ body {
 
 /* Floating video - text wraps around */
 .float-video {
-    float: left;
     width: 45%;
     max-width: 400px;
-    margin: 0 var(--spacing-md) var(--spacing-md) 0;
     border: 3px solid var(--primary);
     position: relative;
     padding-bottom: 56.25%; /* 16:9 ratio */
     height: 0;
+}
+
+/* Default: videos on left for odd articles */
+.newspaper-article:nth-child(odd) .float-video {
+    float: left;
+    margin: 0 var(--spacing-md) var(--spacing-md) 0;
+}
+
+/* Videos on right for even articles */
+.newspaper-article:nth-child(even) .float-video {
+    float: right;
+    margin: 0 0 var(--spacing-md) var(--spacing-md);
 }
 
 .float-video iframe {
@@ -1065,6 +1085,19 @@ body {
     background: var(--accent);
     color: white;
     border-color: var(--accent);
+    transition: all 0.2s;
+}
+
+.btn-edit:hover {
+    background: transparent;
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 var(--accent);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 var(--accent);
 }
 
 .btn-delete {

@@ -111,7 +111,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyA72C91k6EpeUZvZ8r6oGgeD0diYs9dDDE",
@@ -149,10 +149,20 @@
             e.preventDefault();
 
             const imageFile = document.getElementById('lift-image').files[0];
+            const editId = document.getElementById('lift-title').dataset.editId;
             let imageUrl = '';
 
             if (imageFile) {
                 imageUrl = await fileToBase64(imageFile);
+            } else if (editId) {
+                // Keep existing image if editing and no new image selected
+                const liftsQuery = query(collection(db, 'lifts'));
+                const liftsSnapshot = await getDocs(liftsQuery);
+                liftsSnapshot.forEach((doc) => {
+                    if (doc.id === editId) {
+                        imageUrl = doc.data().imageUrl || '';
+                    }
+                });
             }
 
             const entry = {
@@ -165,10 +175,25 @@
             };
 
             try {
-                await addDoc(collection(db, 'lifts'), entry);
-                showMessage('✓ Lift saved successfully!', 'success');
+                if (editId) {
+                    // Update existing
+                    const docRef = doc(db, 'lifts', editId);
+                    await updateDoc(docRef, entry);
+                    showMessage('✓ Lift updated successfully!', 'success');
+                    delete document.getElementById('lift-title').dataset.editId;
+                } else {
+                    // Create new
+                    await addDoc(collection(db, 'lifts'), entry);
+                    showMessage('✓ Lift saved successfully!', 'success');
+                }
+                
                 document.getElementById('lifts-form').reset();
                 document.getElementById('lift-date').valueAsDate = new Date();
+                
+                // Reset button
+                const submitBtn = document.querySelector('#lifts-form button[type="submit"]');
+                submitBtn.textContent = 'SAVE LIFT';
+                submitBtn.style.background = '';
             } catch (error) {
                 console.error('Error saving lift:', error);
                 showMessage('✗ Error saving lift', 'error');
@@ -180,12 +205,22 @@
             e.preventDefault();
 
             const imageFile = document.getElementById('thought-image').files[0];
+            const editId = document.getElementById('thought-title').dataset.editId;
             let imageUrl = '';
             
             if (imageFile) {
                 console.log('Image file selected:', imageFile.name);
                 imageUrl = await fileToBase64(imageFile);
                 console.log('Base64 generated, length:', imageUrl.length);
+            } else if (editId) {
+                // Keep existing image if editing and no new image selected
+                const thoughtsQuery = query(collection(db, 'thoughts'));
+                const thoughtsSnapshot = await getDocs(thoughtsQuery);
+                thoughtsSnapshot.forEach((doc) => {
+                    if (doc.id === editId) {
+                        imageUrl = doc.data().imageUrl || '';
+                    }
+                });
             }
             
             const thought = {
@@ -199,10 +234,25 @@
             console.log('Saving thought:', thought);
 
             try {
-                await addDoc(collection(db, 'thoughts'), thought);
-                showMessage('✓ Thought saved successfully!', 'success');
+                if (editId) {
+                    // Update existing
+                    const docRef = doc(db, 'thoughts', editId);
+                    await updateDoc(docRef, thought);
+                    showMessage('✓ Thought updated successfully!', 'success');
+                    delete document.getElementById('thought-title').dataset.editId;
+                } else {
+                    // Create new
+                    await addDoc(collection(db, 'thoughts'), thought);
+                    showMessage('✓ Thought saved successfully!', 'success');
+                }
+                
                 document.getElementById('thoughts-form').reset();
                 document.getElementById('thought-date').valueAsDate = new Date();
+                
+                // Reset button
+                const submitBtn = document.querySelector('#thoughts-form button[type="submit"]');
+                submitBtn.textContent = 'SAVE THOUGHT';
+                submitBtn.style.background = '';
             } catch (error) {
                 console.error('Error saving thought:', error);
                 showMessage('✗ Error saving thought: ' + error.message, 'error');
@@ -227,7 +277,10 @@
                         div.className = 'manage-item';
                         div.innerHTML = `
                             <span>${entry.title} - ${entry.date}</span>
-                            <button onclick="window.deleteLift('${docSnapshot.id}')" class="btn-delete">DELETE</button>
+                            <div>
+                                <button onclick="window.editLift('${docSnapshot.id}')" class="btn-edit">EDIT</button>
+                                <button onclick="window.deleteLift('${docSnapshot.id}')" class="btn-delete">DELETE</button>
+                            </div>
                         `;
                         liftsList.appendChild(div);
                     });
@@ -252,7 +305,10 @@
                         div.className = 'manage-item';
                         div.innerHTML = `
                             <span>${thought.title} - ${thought.date}</span>
-                            <button onclick="window.deleteThought('${docSnapshot.id}')" class="btn-delete">DELETE</button>
+                            <div>
+                                <button onclick="window.editThought('${docSnapshot.id}')" class="btn-edit">EDIT</button>
+                                <button onclick="window.deleteThought('${docSnapshot.id}')" class="btn-delete">DELETE</button>
+                            </div>
                         `;
                         thoughtsList.appendChild(div);
                     });
@@ -261,6 +317,90 @@
                 console.error('Error loading thoughts:', error);
             }
         }
+
+        // EDIT FUNCTIONS
+        window.editThought = async function(id) {
+            console.log('Editing thought:', id);
+            try {
+                const thoughtsQuery = query(collection(db, 'thoughts'));
+                const thoughtsSnapshot = await getDocs(thoughtsQuery);
+                
+                let thoughtData = null;
+                thoughtsSnapshot.forEach((doc) => {
+                    if (doc.id === id) {
+                        thoughtData = { id: doc.id, ...doc.data() };
+                    }
+                });
+                
+                if (!thoughtData) {
+                    showMessage('✗ Thought not found', 'error');
+                    return;
+                }
+                
+                // Switch to thoughts tab
+                document.querySelector('[data-tab="thoughts"]').click();
+                
+                // Populate form
+                document.getElementById('thought-title').value = thoughtData.title;
+                document.getElementById('thought-date').value = thoughtData.date;
+                document.getElementById('thought-content').value = thoughtData.content;
+                
+                // Store the ID for update
+                document.getElementById('thought-title').dataset.editId = id;
+                
+                // Change button text
+                const submitBtn = document.querySelector('#thoughts-form button[type="submit"]');
+                submitBtn.textContent = 'UPDATE THOUGHT';
+                submitBtn.style.background = 'var(--warning)';
+                
+                showMessage('Editing: ' + thoughtData.title, 'success');
+            } catch (error) {
+                console.error('Error loading thought:', error);
+                showMessage('✗ Error loading thought', 'error');
+            }
+        };
+
+        window.editLift = async function(id) {
+            console.log('Editing lift:', id);
+            try {
+                const liftsQuery = query(collection(db, 'lifts'));
+                const liftsSnapshot = await getDocs(liftsQuery);
+                
+                let liftData = null;
+                liftsSnapshot.forEach((doc) => {
+                    if (doc.id === id) {
+                        liftData = { id: doc.id, ...doc.data() };
+                    }
+                });
+                
+                if (!liftData) {
+                    showMessage('✗ Lift not found', 'error');
+                    return;
+                }
+                
+                // Switch to lifts tab
+                document.querySelector('[data-tab="lifts"]').click();
+                
+                // Populate form
+                document.getElementById('lift-title').value = liftData.title;
+                document.getElementById('lift-date').value = liftData.date;
+                document.getElementById('lift-video').value = liftData.videoUrl || '';
+                document.getElementById('lift-notes').value = liftData.notes;
+                
+                // Store the ID for update
+                document.getElementById('lift-title').dataset.editId = id;
+                
+                // Change button text
+                const submitBtn = document.querySelector('#lifts-form button[type="submit"]');
+                submitBtn.textContent = 'UPDATE LIFT';
+                submitBtn.style.background = 'var(--warning)';
+                
+                showMessage('Editing: ' + liftData.title, 'success');
+            } catch (error) {
+                console.error('Error loading lift:', error);
+                showMessage('✗ Error loading lift', 'error');
+            }
+        };
 
         // DELETE FUNCTIONS - Attach to window for onclick to work
         window.deleteLift = async function(id) {

@@ -15,10 +15,14 @@
     </nav>
 
     <main class="content-container">
-        <div class="page-header">
-            <h1>🌿 THOUGHTS & IDEAS </h1>
-            <p class="subtitle">I THINK THEREFORE I AM</p>
-        </div>
+       <div class="page-header">
+    <h1>
+        <img src="images/book.png" width="70" height="70" style="display: inline-block; vertical-align: middle; margin-right: 15px; image-rendering: pixelated;" alt="book">
+        THOUGHTS & IDEAS
+        <img src="images/cup.png" width="80" height="80" style="display: inline-block; vertical-align: middle; margin-left: 15px; image-rendering: pixelated;" alt="coffee cup">
+    </h1>
+    <p class="subtitle">I THINK THEREFORE I AM</p>
+</div>
 
         <div id="thoughts-container" class="newspaper-container">
             <div class="empty-state">
@@ -67,12 +71,14 @@
                 }
 
                 let html = '';
+                let index = 0;
                 querySnapshot.forEach((doc) => {
                     const thought = doc.data();
                     console.log('Loading thought:', thought.title);
                     console.log('Has imageUrl:', !!thought.imageUrl);
                     console.log('Has media array:', Array.isArray(thought.media));
-                    html += renderThought(thought);
+                    html += renderThought(thought, index);
+                    index++;
                 });
                 
                 container.innerHTML = html;
@@ -88,7 +94,10 @@
             }
         }
 
-        function renderThought(thought) {
+        function renderThought(thought, index) {
+            // Determine if image should be on left or right (alternate)
+            const imageOnLeft = index % 2 === 0;
+            
             // Get images from BOTH old format (imageUrl) and new format (media array)
             let images = [];
             
@@ -152,7 +161,7 @@
                 `;
             }
             
-            // 1 image with text - image floats left, text wraps around
+            // 1 image with text - image floats (CSS handles left/right alternating)
             if (imageCount === 1) {
                 return `
                     <article class="newspaper-article">
@@ -167,6 +176,7 @@
                             <div class="article-text">
                                 ${formattedContent}
                             </div>
+                            <div style="clear: both;"></div>
                         </div>
                     </article>
                 `;
