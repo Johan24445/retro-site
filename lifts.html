@@ -15,18 +15,10 @@
     </nav>
 
     <main class="content-container">
-   <div class="page-header">
-    <h1>
-        <img src="images/dumbbell2.png" width="60" height="60" style="display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 12px; image-rendering: pixelated;" alt="dumbbell">
-        <img src="images/dumbbell2.png" width="60" height="60" style="display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 12px; image-rendering: pixelated;" alt="dumbbell">
-        <img src="images/dumbbell2.png" width="60" height="60" style="display: inline-block; vertical-align: middle; margin-right: 10px; margin-bottom: 12px; image-rendering: pixelated;" alt="dumbbell">
-        LIFTS
-        <img src="images/heart.png" width="50" height="50" style="display: inline-block; vertical-align: middle; margin-left: 10px; margin-bottom: 14px; image-rendering: pixelated;" alt="heart">
-        <img src="images/heart.png" width="50" height="50" style="display: inline-block; vertical-align: middle; margin-left: 10px; margin-bottom: 14px; image-rendering: pixelated;" alt="heart">
-        <img src="images/heart.png" width="50" height="50" style="display: inline-block; vertical-align: middle; margin-left: 10px; margin-bottom: 14px; image-rendering: pixelated;" alt="heart">
-    </h1>
-    <p class="subtitle">SALVATION TO THE VESSEL OF THE SOUL</p>
-</div>
+        <div class="page-header">
+            <h1>🏋️ LIFTS </h1>
+            <p class="subtitle">SALVATION TO THE VESSEL OF THE SOUL</p>
+        </div>
 
         <div id="lifts-container" class="newspaper-container">
             <div class="empty-state">
@@ -97,9 +89,6 @@
         }
 
         function renderLift(lift, index) {
-            // Determine if media should be on left or right (alternate)
-            const mediaOnLeft = index % 2 === 0;
-            
             // Get videos and images from BOTH formats
             let videos = [];
             let images = [];
@@ -126,10 +115,12 @@
             
             const notes = lift.notes || '';
             const totalMedia = videos.length + images.length;
+            const hasVideos = videos.length > 0;
+            const hasImages = images.length > 0;
             
             console.log('Videos:', videos.length, 'Images:', images.length);
             
-            // Add drop cap to first word
+            // Add drop cap to first letter
             const formattedNotes = addDropCap(notes);
             
             // No media - full width text
@@ -180,11 +171,8 @@
                 `;
             }
             
-            // 1 media item with text - media floats (CSS handles left/right alternating)
-            if (totalMedia === 1) {
-                const hasVideo = videos.length > 0;
-                const mediaUrl = hasVideo ? videos[0] : images[0];
-                
+            // Only video(s), no images - video on top, text below
+            if (hasVideos && !hasImages) {
                 return `
                     <article class="newspaper-article">
                         <div class="article-header">
@@ -192,40 +180,80 @@
                             <span class="article-date">${lift.date}</span>
                         </div>
                         <div class="article-content single-column">
-                            ${hasVideo ? `
-                                <div class="float-video">
+                            ${videos.map(url => `
+                                <div class="video-wrapper-landscape">
                                     <iframe 
-                                        src="${getYouTubeEmbedUrl(mediaUrl)}" 
+                                        src="${getYouTubeEmbedUrl(url)}" 
                                         frameborder="0" 
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                         allowfullscreen>
                                     </iframe>
                                 </div>
-                            ` : `
-                                <div class="float-image">
-                                    <img src="${mediaUrl}" alt="${lift.title}" loading="lazy">
-                                </div>
-                            `}
+                            `).join('')}
                             <div class="article-text">
                                 ${formattedNotes}
                             </div>
-                            <div style="clear: both;"></div>
                         </div>
                     </article>
                 `;
             }
             
-            // 2+ media items with text - two column layout
-            return `
-                <article class="newspaper-article">
-                    <div class="article-header">
-                        <h2 class="article-title">${lift.title}</h2>
-                        <span class="article-date">${lift.date}</span>
-                    </div>
-                    <div class="article-content two-column">
-                        <div class="article-media">
+            // Only image(s), no videos - image floats on side (CSS handles alternating)
+            if (hasImages && !hasVideos) {
+                if (images.length === 1) {
+                    return `
+                        <article class="newspaper-article">
+                            <div class="article-header">
+                                <h2 class="article-title">${lift.title}</h2>
+                                <span class="article-date">${lift.date}</span>
+                            </div>
+                            <div class="article-content single-column">
+                                <div class="float-image">
+                                    <img src="${images[0]}" alt="${lift.title}" loading="lazy">
+                                </div>
+                                <div class="article-text">
+                                    ${formattedNotes}
+                                </div>
+                                <div style="clear: both;"></div>
+                            </div>
+                        </article>
+                    `;
+                } else {
+                    // Multiple images - two column layout
+                    return `
+                        <article class="newspaper-article">
+                            <div class="article-header">
+                                <h2 class="article-title">${lift.title}</h2>
+                                <span class="article-date">${lift.date}</span>
+                            </div>
+                            <div class="article-content two-column">
+                                <div class="article-media">
+                                    ${images.map(url => `
+                                        <div class="stacked-image">
+                                            <img src="${url}" alt="${lift.title}" loading="lazy">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="article-text">
+                                    ${formattedNotes}
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }
+            }
+            
+            // Both videos AND images - video on top, then image on side with text
+            if (hasVideos && hasImages) {
+                return `
+                    <article class="newspaper-article">
+                        <div class="article-header">
+                            <h2 class="article-title">${lift.title}</h2>
+                            <span class="article-date">${lift.date}</span>
+                        </div>
+                        <div class="article-content single-column">
                             ${videos.map(url => `
-                                <div class="stacked-video">
+                                <div class="video-wrapper-landscape">
                                     <iframe 
                                         src="${getYouTubeEmbedUrl(url)}" 
                                         frameborder="0" 
@@ -235,17 +263,18 @@
                                 </div>
                             `).join('')}
                             ${images.map(url => `
-                                <div class="stacked-image">
+                                <div class="float-image">
                                     <img src="${url}" alt="${lift.title}" loading="lazy">
                                 </div>
                             `).join('')}
+                            <div class="article-text">
+                                ${formattedNotes}
+                            </div>
+                            <div style="clear: both;"></div>
                         </div>
-                        <div class="article-text">
-                            ${formattedNotes}
-                        </div>
-                    </div>
-                </article>
-            `;
+                    </article>
+                `;
+            }
         }
 
         function getYouTubeEmbedUrl(url) {
