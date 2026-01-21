@@ -28,7 +28,6 @@
     <p class="subtitle">SALVATION TO THE VESSEL OF THE SOUL</p>
 </div>
 
-
         <div id="lifts-container" class="newspaper-container">
             <div class="empty-state">
                 <p>NO ENTRIES FOUND</p>
@@ -130,7 +129,7 @@
             console.log('Videos:', videos.length, 'Images:', images.length);
             
             // Add drop cap to first letter
-            const formattedNotes = addDropCap(notes);
+            const formattedNotes = formatNotes(notes);
             
             // No media - full width text
             if (totalMedia === 0) {
@@ -292,20 +291,13 @@
             return videoId ? `https://www.youtube.com/embed/${videoId[1]}` : url;
         }
 
-        function addDropCap(text) {
+        function formatNotes(text) {
             if (!text || !text.trim()) return '';
             
             // Replace line breaks with proper HTML
             text = text.replace(/\n/g, '<br>');
             
-            // Find first letter
-            const match = text.match(/^(\w)/);
-            if (!match) return `<p>${text}</p>`;
-            
-            const firstLetter = match[1];
-            const restOfText = text.substring(1);
-            
-            return `<p><span class="drop-cap">${firstLetter.toUpperCase()}</span>${restOfText}</p>`;
+            return `<p>${text}</p>`;
         }
     </script>
     <script src="script.js"></script>
