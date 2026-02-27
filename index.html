@@ -6,42 +6,178 @@
     <title>ÜBERMENSCH.EXE</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* 3-column flex row: [spacer] [menu] [character]
+           Spacer mirrors character width so menu stays centred. */
+        .menu-row {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: var(--spacing-xl);
+            width: 100%;
+        }
+
+        /* Invisible spacer — same width as character so menu stays centred */
+        .menu-row-spacer {
+            width: 220px;   /* ← KEEP THIS EQUAL TO .character-wrapper width */
+            flex-shrink: 0;
+        }
+
+        /* Menu stays in the middle */
+        .menu-row .menu {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        /* ═══════════════════════════════════════════════
+           CHARACTER — in normal document flow (no fixed/absolute to viewport)
+           so it scales correctly with browser zoom.
+
+           TO ADJUST CHARACTER:
+             width:        size of the character        (e.g. 180px – 280px)
+             margin-left:  gap between menu and him     (e.g. 10px, 30px)
+             align-self:   flex-end = feet at bottom,
+                           center   = vertically centred
+        ═══════════════════════════════════════════════ */
+        .character-wrapper {
+            position: relative;
+            width: 250px;
+            margin-left: 10px;
+            margin-bottom: -30px; 
+            flex-shrink: 0;
+            align-self: flex-end;
+            pointer-events: none;
+        }
+
+        .character-wrapper .character-base {
+            width: 100%;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        /* ═══════════════════════════════════════════════
+           EYE POSITION ON FACE — all % relative to character-wrapper:
+
+           .eye-container top:   UP = smaller %, DOWN = bigger %
+           .eye-container left:  LEFT = smaller %, RIGHT = bigger %
+           .eye-container width: spread between the two eyes
+
+           .eye.left  top:  move ONLY the left eye up/down
+           .eye.right top:  move ONLY the right eye up/down
+        ═══════════════════════════════════════════════ */
+        .eye-container {
+            position: absolute;
+            top: 29%;     /* ← eyes up/down on face */
+            left: 31%;    /* ← eyes left/right on face */
+            width: 26%;   /* ← spread between eyes */
+            height: 8%;
+            pointer-events: none;
+        }
+
+        .eye {
+            position: absolute;
+            width: 33%;   /* ← eyeball size */
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eye.left  { top: 20%; left: 0%; }   /* ← LEFT eye vertical position */
+        .eye.right { top: 0%;  right: 0%; }  /* ← RIGHT eye vertical position */
+
+        .pupil-dot {
+            position: absolute;
+            width: 44%;   /* ← pupil size */
+            aspect-ratio: 1;
+            background: #1a1008;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-    <!-- Main container for the start screen -->
     <div class="start-screen">
-        <!-- Retro game title -->
+
         <div class="game-title">
             <h1 class="glitch" data-text="ÜBERMENSCH.EXE">ÜBERMENSCH.EXE</h1>
             <p class="subtitle">THE KNIGHT'S CODEX</p>
         </div>
 
-        <!-- Menu options styled like old game menus -->
-        <div class="menu">
-            <div class="menu-item" data-page="login.html">
-                <span class="menu-arrow">►</span>
-                <span class="menu-text">ADMIN</span>
+        <!-- 3-column: spacer | menu | character — all in normal document flow -->
+        <div class="menu-row">
+
+            <!-- Spacer mirrors character width to keep menu visually centred -->
+            <div class="menu-row-spacer"></div>
+
+            <!-- Menu — centred as before -->
+            <div class="menu">
+                <div class="menu-item" data-page="login.html">
+                    <span class="menu-arrow">►</span>
+                    <span class="menu-text">ADMIN</span>
+                </div>
+                <div class="menu-item" data-page="lifts.html">
+                    <span class="menu-arrow">►</span>
+                    <span class="menu-text">LIFTS</span>
+                </div>
+                <div class="menu-item" data-page="thoughts.html">
+                    <span class="menu-arrow">►</span>
+                    <span class="menu-text">THOUGHTS</span>
+                </div>
             </div>
-            <div class="menu-item" data-page="lifts.html">
-                <span class="menu-arrow">►</span>
-                <span class="menu-text">LIFTS</span>
+
+            <!-- Character — right of menu, in flow, zoom-proof -->
+            <div class="character-wrapper" id="characterWrapper">
+                <div class="eye-container" id="eyeContainer">
+                    <div class="eye left"  id="eyeLeft"><div  class="pupil-dot" id="pupilLeft"></div></div>
+                    <div class="eye right" id="eyeRight"><div class="pupil-dot" id="pupilRight"></div></div>
+                </div>
+                <img src="images/character.png" alt="character" class="character-base" id="characterBase">
             </div>
-            <div class="menu-item" data-page="thoughts.html">
-                <span class="menu-arrow">►</span>
-                <span class="menu-text">THOUGHTS</span>
-            </div>
+
         </div>
 
-        <!-- Retro footer info -->
         <div class="footer-info">
             <p>PRESS ENTER OR CLICK TO SELECT</p>
             <p class="credits">© 2026 - RETRO EDITION</p>
         </div>
 
-        <!-- Animated scanline effect for CRT monitor feel -->
         <div class="scanline"></div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+    (function () {
+        const eyeLeft    = document.getElementById('eyeLeft');
+        const eyeRight   = document.getElementById('eyeRight');
+        const pupilLeft  = document.getElementById('pupilLeft');
+        const pupilRight = document.getElementById('pupilRight');
+
+        function movePupil(eyeEl, pupilEl, mx, my) {
+            const r  = eyeEl.getBoundingClientRect();
+            const cx = r.left + r.width  / 2;
+            const cy = r.top  + r.height / 2;
+            const angle     = Math.atan2(my - cy, mx - cx);
+            const maxOffset = r.width * 0.22;
+            pupilEl.style.transform = `translate(calc(-50% + ${Math.cos(angle) * maxOffset}px), calc(-50% + ${Math.sin(angle) * maxOffset}px))`;
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            movePupil(eyeLeft,  pupilLeft,  e.clientX, e.clientY);
+            movePupil(eyeRight, pupilRight, e.clientX, e.clientY);
+        });
+
+        pupilLeft.style.transform  = 'translate(-50%, -50%)';
+        pupilRight.style.transform = 'translate(-50%, -50%)';
+    })();
+    </script>
 </body>
 </html>
