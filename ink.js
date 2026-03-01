@@ -19,33 +19,30 @@
     /* ── FIRE AUDIO ── */
     if (window.AUDIO_ENABLED !== false) {
         const inkAudio = document.createElement('audio');
-        inkAudio.src    = 'sounds/firesound.mp3';
-        inkAudio.loop   = true;
-        inkAudio.volume = 0.4;
+        inkAudio.src     = 'sounds/firesound.mp3';
+        inkAudio.loop    = true;
+        inkAudio.volume  = 0.4;
         inkAudio.preload = 'auto';
         document.body.appendChild(inkAudio);
 
-        // Persist mute state across pages
         let muted = sessionStorage.getItem('audioMuted') === 'true';
 
-        // Audio toggle button — always visible in top-right corner
         const btn = document.createElement('button');
         btn.id = 'audio-toggle';
         btn.style.cssText = `
             position: fixed;
-            top: 12px;
+            top: 80px;
             right: 12px;
             z-index: 999999;
             background: rgba(42, 28, 16, 0.85);
             border: 2px solid #5a4a36;
             color: #c9b896;
             font-family: 'Press Start 2P', monospace;
-            font-size: 20px;      /* ← change this to resize the button text */
-            padding: 5px 10px;   /* ← change this to resize button padding */
+            font-size: 20px;
+            padding: 5px 10px;
             cursor: pointer;
             letter-spacing: 1px;
             transform-origin: top right;
-            transform: scale(calc(1 / (devicePixelRatio / (devicePixelRatio < 2 ? 1 : devicePixelRatio))));
         `;
 
         function updateBtn() {
@@ -68,19 +65,22 @@
 
         document.body.appendChild(btn);
 
-        // Auto-start if not muted
+        // Add retry listener IMMEDIATELY — not inside a .catch() which fires too late
+        // This way the very first mousedown on the new page starts audio before anything else
+        const events = ['mousedown', 'pointerdown', 'keydown', 'touchstart'];
+        const retry = () => {
+            if (muted) return;
+            inkAudio.play().then(() => {
+                events.forEach(ev => document.removeEventListener(ev, retry, true));
+            }).catch(() => {});
+        };
+        events.forEach(ev => document.addEventListener(ev, retry, true));
+
+        // Also try immediately in case browser allows it (e.g. already interacted this session)
         if (!muted) {
-            const tryPlay = () => {
-                inkAudio.play().catch(() => {});
-                document.removeEventListener('pointerdown', tryPlay);
-                document.removeEventListener('keydown', tryPlay);
-            };
-            // Try immediately (works if user already interacted on a previous page)
-            inkAudio.play().catch(() => {
-                // Blocked — wait for next real gesture
-                document.addEventListener('pointerdown', tryPlay);
-                document.addEventListener('keydown', tryPlay);
-            });
+            inkAudio.play().then(() => {
+                events.forEach(ev => document.removeEventListener(ev, retry, true));
+            }).catch(() => {});
         }
     }
 
