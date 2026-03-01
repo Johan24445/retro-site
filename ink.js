@@ -5,32 +5,87 @@
    and set these flags BEFORE the <script src="ink.js"> tag:
 
      <script>
-       const INK_ENABLED   = true;   // ← toggle ink trail on/off
-       const AUDIO_ENABLED = true;   // ← toggle fire audio on/off
+       window.INK_ENABLED   = true;   // ← toggle ink trail on/off
+       window.AUDIO_ENABLED = true;   // ← toggle fire audio on/off
      </script>
      <script src="ink.js"></script>
 
    Set either flag to false to disable that feature for that page.
+   Use window.INK_ENABLED (not const) so ink.js can always read it.
 ============================================================ */
 
 (function () {
 
     /* ── FIRE AUDIO ── */
-    if (typeof AUDIO_ENABLED !== 'undefined' && AUDIO_ENABLED) {
-        const audio = document.createElement('audio');
-        audio.src    = 'sounds/firesound.mp3';
-        audio.loop   = true;
-        audio.volume = 0.4;
-        document.body.appendChild(audio);
+    if (window.AUDIO_ENABLED !== false) {
+        const inkAudio = document.createElement('audio');
+        inkAudio.src    = 'sounds/firesound.mp3';
+        inkAudio.loop   = true;
+        inkAudio.volume = 0.4;
+        inkAudio.preload = 'auto';
+        document.body.appendChild(inkAudio);
 
-        const start = () => { audio.play().catch(() => {}); };
-        document.addEventListener('click',     start, { once: true });
-        document.addEventListener('keydown',   start, { once: true });
-        document.addEventListener('mousemove', start, { once: true });
+        // Persist mute state across pages
+        let muted = sessionStorage.getItem('audioMuted') === 'true';
+
+        // Audio toggle button — always visible in top-right corner
+        const btn = document.createElement('button');
+        btn.id = 'audio-toggle';
+        btn.style.cssText = `
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 999999;
+            background: rgba(42, 28, 16, 0.85);
+            border: 2px solid #5a4a36;
+            color: #c9b896;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 20px;      /* ← change this to resize the button text */
+            padding: 5px 10px;   /* ← change this to resize button padding */
+            cursor: pointer;
+            letter-spacing: 1px;
+            transform-origin: top right;
+            transform: scale(calc(1 / (devicePixelRatio / (devicePixelRatio < 2 ? 1 : devicePixelRatio))));
+        `;
+
+        function updateBtn() {
+            btn.innerHTML = `<span style="font-size:22px;vertical-align:middle;">♪</span><span style="font-size:14px;vertical-align:middle;margin-left:4px;">${muted ? 'OFF' : 'ON'}</span>`;
+            btn.style.opacity = muted ? '0.5' : '1';
+        }
+        updateBtn();
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            muted = !muted;
+            sessionStorage.setItem('audioMuted', muted);
+            if (muted) {
+                inkAudio.pause();
+            } else {
+                inkAudio.play().catch(() => {});
+            }
+            updateBtn();
+        });
+
+        document.body.appendChild(btn);
+
+        // Auto-start if not muted
+        if (!muted) {
+            const tryPlay = () => {
+                inkAudio.play().catch(() => {});
+                document.removeEventListener('pointerdown', tryPlay);
+                document.removeEventListener('keydown', tryPlay);
+            };
+            // Try immediately (works if user already interacted on a previous page)
+            inkAudio.play().catch(() => {
+                // Blocked — wait for next real gesture
+                document.addEventListener('pointerdown', tryPlay);
+                document.addEventListener('keydown', tryPlay);
+            });
+        }
     }
 
     /* ── INK TRAIL ── */
-    if (typeof INK_ENABLED !== 'undefined' && !INK_ENABLED) return;
+    if (window.INK_ENABLED === false) return;
 
     const COLOURS = [
         'rgba(14, 8, 3, 0.97)',
@@ -141,6 +196,10 @@
         lastX = x; lastY = y;
     });
 
-    document.addEventListener('click', (e) => splat(e.clientX, e.clientY, 1.5));
+    document.addEventListener('click', (e) => {
+        // Don't splat when clicking interactive elements — lets menu, links, buttons work normally
+        if (e.target.closest('a, button, .menu-item, input, textarea, select, label')) return;
+        splat(e.clientX, e.clientY, 1.5);
+    });
 
 })();

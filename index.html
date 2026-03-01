@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* 3-column flex row: [spacer] [menu] [character]
-           Spacer mirrors character width so menu stays centred. */
+        /* menu-row: [fire] [menu] [character]
+           Fire is a flex sibling — scales with zoom just like the character */
         .menu-row {
             display: flex;
             flex-direction: row;
@@ -18,33 +18,47 @@
             width: 100%;
         }
 
-        /* Invisible spacer — same width as character so menu stays centred */
-        .menu-row-spacer {
-            width: 220px;   /* ← KEEP THIS EQUAL TO .character-wrapper width */
-            flex-shrink: 0;
-        }
-
-        /* Menu stays in the middle */
         .menu-row .menu {
             margin-bottom: 0;
             flex-shrink: 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        .menu-row .menu .menu-item {
+            cursor: pointer;
         }
 
         /* ═══════════════════════════════════════════════
-           CHARACTER — in normal document flow (no fixed/absolute to viewport)
+           FIRE GIF — in normal flex flow (same as character)
            so it scales correctly with browser zoom.
 
-           TO ADJUST CHARACTER:
-             width:        size of the character        (e.g. 180px – 280px)
-             margin-left:  gap between menu and him     (e.g. 10px, 30px)
-             align-self:   flex-end = feet at bottom,
-                           center   = vertically centred
+           TO ADJUST FIRE:
+             width:          size of the fire wrapper
+             margin-right:   gap between fire and menu
+             margin-bottom:  negative = overlap below, positive = lift up
+             img width:      actual gif size relative to wrapper
         ═══════════════════════════════════════════════ */
+        .fire-wrapper {
+            position: relative;        /* in flex flow — zoom-proof */
+            width: 300px;              /* ← wrapper size */
+            margin-right: -50px;        /* ← gap between fire and menu */
+            margin-bottom: -70px;      /* ← vertical offset */
+            flex-shrink: 0;
+            align-self: flex-end;
+            pointer-events: none;
+        }
+
+        .fire-wrapper img {
+            width: 100%;
+            display: block;
+        }
+
         .character-wrapper {
             position: relative;
             width: 250px;
             margin-left: 10px;
-            margin-bottom: -30px; 
+            margin-bottom: -30px;
             flex-shrink: 0;
             align-self: flex-end;
             pointer-events: none;
@@ -56,28 +70,18 @@
             image-rendering: pixelated;
         }
 
-        /* ═══════════════════════════════════════════════
-           EYE POSITION ON FACE — all % relative to character-wrapper:
-
-           .eye-container top:   UP = smaller %, DOWN = bigger %
-           .eye-container left:  LEFT = smaller %, RIGHT = bigger %
-           .eye-container width: spread between the two eyes
-
-           .eye.left  top:  move ONLY the left eye up/down
-           .eye.right top:  move ONLY the right eye up/down
-        ═══════════════════════════════════════════════ */
         .eye-container {
             position: absolute;
-            top: 29%;     /* ← eyes up/down on face */
-            left: 31%;    /* ← eyes left/right on face */
-            width: 26%;   /* ← spread between eyes */
+            top: 29%;
+            left: 31%;
+            width: 26%;
             height: 8%;
             pointer-events: none;
         }
 
         .eye {
             position: absolute;
-            width: 33%;   /* ← eyeball size */
+            width: 33%;
             aspect-ratio: 1;
             background: white;
             border-radius: 50%;
@@ -88,12 +92,12 @@
             justify-content: center;
         }
 
-        .eye.left  { top: 20%; left: 0%; }   /* ← LEFT eye vertical position */
-        .eye.right { top: 0%;  right: 0%; }  /* ← RIGHT eye vertical position */
+        .eye.left  { top: 20%; left: 0%; }
+        .eye.right { top: 0%;  right: 0%; }
 
         .pupil-dot {
             position: absolute;
-            width: 44%;   /* ← pupil size */
+            width: 44%;
             aspect-ratio: 1;
             background: #1a1008;
             border-radius: 50%;
@@ -102,6 +106,8 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
         }
+
+        /* ink styles injected by ink.js */
     </style>
 </head>
 <body>
@@ -112,29 +118,30 @@
             <p class="subtitle">THE KNIGHT'S CODEX</p>
         </div>
 
-        <!-- 3-column: spacer | menu | character — all in normal document flow -->
         <div class="menu-row">
 
-            <!-- Spacer mirrors character width to keep menu visually centred -->
-            <div class="menu-row-spacer"></div>
+            <!-- Fire gif — left flex item, zoom-proof like the character -->
+            <div class="fire-wrapper">
+                <img src="images/fire4.gif" alt="fire">
+            </div>
 
-            <!-- Menu — centred as before -->
+            <!-- Menu — dead centre -->
             <div class="menu">
-                <div class="menu-item" data-page="login.html">
+                <div class="menu-item" data-page="login.html" onclick="window.location.href='login.html'">
                     <span class="menu-arrow">►</span>
                     <span class="menu-text">ADMIN</span>
                 </div>
-                <div class="menu-item" data-page="lifts.html">
+                <div class="menu-item" data-page="lifts.html" onclick="window.location.href='lifts.html'">
                     <span class="menu-arrow">►</span>
                     <span class="menu-text">LIFTS</span>
                 </div>
-                <div class="menu-item" data-page="thoughts.html">
+                <div class="menu-item" data-page="thoughts.html" onclick="window.location.href='thoughts.html'">
                     <span class="menu-arrow">►</span>
                     <span class="menu-text">THOUGHTS</span>
                 </div>
             </div>
 
-            <!-- Character — right of menu, in flow, zoom-proof -->
+            <!-- Character — right of menu, in flex flow -->
             <div class="character-wrapper" id="characterWrapper">
                 <div class="eye-container" id="eyeContainer">
                     <div class="eye left"  id="eyeLeft"><div  class="pupil-dot" id="pupilLeft"></div></div>
@@ -142,7 +149,6 @@
                 </div>
                 <img src="images/character.png" alt="character" class="character-base" id="characterBase">
             </div>
-
         </div>
 
         <div class="footer-info">
@@ -178,6 +184,13 @@
         pupilLeft.style.transform  = 'translate(-50%, -50%)';
         pupilRight.style.transform = 'translate(-50%, -50%)';
     })();
+
     </script>
+
+    <script>
+        window.INK_ENABLED   = true;  // ← set false to disable ink on this page
+        window.AUDIO_ENABLED = true;  // ← set false to disable fire audio on this page
+    </script>
+    <script src="ink.js"></script>
 </body>
 </html>
